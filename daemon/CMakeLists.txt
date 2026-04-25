@@ -7,7 +7,7 @@ set(DAEMON_SOURCES
 )
 
 qt_add_dbus_adaptor(DAEMON_SOURCES
-    org.example.WireguardManager.xml
+    io.github.traciges.WireguardManager.xml
     WireguardManager.h
     WireguardManager
 )
@@ -26,7 +26,7 @@ target_link_libraries(yawg-daemon
 )
 
 install(TARGETS yawg-daemon DESTINATION /usr/local/bin)
-install(FILES org.example.WireguardManager.conf
+install(FILES io.github.traciges.WireguardManager.conf
     DESTINATION /etc/dbus-1/system.d/)
-install(FILES com.example.wireguard.rules
+install(FILES io.github.traciges.wireguard.rules
     DESTINATION /usr/share/polkit-1/rules.d/)

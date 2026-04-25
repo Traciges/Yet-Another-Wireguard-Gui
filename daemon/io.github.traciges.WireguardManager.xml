@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<node name="/org/example/WireguardManager">
-  <interface name="org.example.WireguardManager">
+<node name="/io/github/traciges/WireguardManager">
+  <interface name="io.github.traciges.WireguardManager">
 
     <method name="ListProfiles">
       <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="ProfileList"/>

@@ -7,7 +7,7 @@ class WireguardManagerBridge : public QObject
 {
     Q_OBJECT
 public:
-    explicit WireguardManagerBridge(OrgExampleWireguardManagerInterface *proxy,
+    explicit WireguardManagerBridge(IoGithubTracigesWireguardManagerInterface *proxy,
                                     QObject *parent = nullptr);
 
 public slots:
@@ -20,5 +20,5 @@ signals:
     void errorOccurred(const QString &profileName, const QString &errorMessage);
 
 private:
-    OrgExampleWireguardManagerInterface *m_proxy;
+    IoGithubTracigesWireguardManagerInterface *m_proxy;
 };

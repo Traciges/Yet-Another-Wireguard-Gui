@@ -4,7 +4,7 @@
 
 class WireguardManager : public QObject {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "org.example.WireguardManager")
+    Q_CLASSINFO("D-Bus Interface", "io.github.traciges.WireguardManager")
 
 public:
     explicit WireguardManager(QObject *parent = nullptr);

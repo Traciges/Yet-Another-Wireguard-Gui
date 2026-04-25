@@ -1,7 +1,7 @@
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Qml Quick DBus QuickControls2 LabsPlatform)
 find_package(KF6Kirigami REQUIRED)
 
-set(DBUS_XML ${CMAKE_SOURCE_DIR}/daemon/org.example.WireguardManager.xml)
+set(DBUS_XML ${CMAKE_SOURCE_DIR}/daemon/io.github.traciges.WireguardManager.xml)
 
 set_source_files_properties(${DBUS_XML}
     PROPERTIES INCLUDE "WireguardTypes.h"

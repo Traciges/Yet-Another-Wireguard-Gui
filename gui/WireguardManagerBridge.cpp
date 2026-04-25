@@ -5,12 +5,12 @@
 #include <QVariantMap>
 
 WireguardManagerBridge::WireguardManagerBridge(
-    OrgExampleWireguardManagerInterface *proxy, QObject *parent)
+    IoGithubTracigesWireguardManagerInterface *proxy, QObject *parent)
     : QObject(parent), m_proxy(proxy)
 {
-    connect(m_proxy, &OrgExampleWireguardManagerInterface::ProfileStatusChanged,
+    connect(m_proxy, &IoGithubTracigesWireguardManagerInterface::ProfileStatusChanged,
             this, &WireguardManagerBridge::profileStatusChanged);
-    connect(m_proxy, &OrgExampleWireguardManagerInterface::ErrorOccurred,
+    connect(m_proxy, &IoGithubTracigesWireguardManagerInterface::ErrorOccurred,
             this, &WireguardManagerBridge::errorOccurred);
 }
 

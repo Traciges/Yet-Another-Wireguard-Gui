@@ -12,16 +12,16 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationName(QStringLiteral("yet-another-wireguard-gui"));
-    app.setOrganizationName(QStringLiteral("example"));
+    app.setOrganizationName(QStringLiteral("io.github.traciges"));
     app.setWindowIcon(QIcon(QStringLiteral(":/app-icon.png")));
 
     qDBusRegisterMetaType<ProfileInfo>();
     qDBusRegisterMetaType<ProfileList>();
 
-    OrgExampleWireguardManagerInterface proxy(
-        QStringLiteral("org.example.WireguardManager"),
-        QStringLiteral("/org/example/WireguardManager"),
-        QDBusConnection::sessionBus()
+    IoGithubTracigesWireguardManagerInterface proxy(
+        QStringLiteral("io.github.traciges.WireguardManager"),
+        QStringLiteral("/io/github/traciges/WireguardManager"),
+        QDBusConnection::systemBus()
     );
     WireguardManagerBridge bridge(&proxy);
 

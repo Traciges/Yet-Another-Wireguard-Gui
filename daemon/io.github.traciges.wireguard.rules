@@ -3,7 +3,7 @@
  * Concrete action IDs will be defined in Milestone 2 (Polkit integration).
  */
 polkit.addRule(function(action, subject) {
-    if (action.id.startsWith("org.example.wireguard.") &&
+    if (action.id.startsWith("io.github.traciges.wireguard.") &&
         subject.isInGroup("wheel")) {
         return polkit.Result.AUTH_ADMIN;
     }

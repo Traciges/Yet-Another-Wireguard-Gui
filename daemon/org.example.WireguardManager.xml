@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/org/example/WireguardManager">
+  <interface name="org.example.WireguardManager">
+
+    <method name="ListProfiles">
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="ProfileList"/>
+      <arg name="profiles" type="a(ss)" direction="out"/>
+    </method>
+
+    <method name="ToggleProfile">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="targetState" type="b" direction="in"/>
+    </method>
+
+    <signal name="ProfileStatusChanged">
+      <arg name="name" type="s"/>
+      <arg name="status" type="s"/>
+    </signal>
+
+    <signal name="ErrorOccurred">
+      <arg name="profileName" type="s"/>
+      <arg name="errorMessage" type="s"/>
+    </signal>
+
+  </interface>
+</node>

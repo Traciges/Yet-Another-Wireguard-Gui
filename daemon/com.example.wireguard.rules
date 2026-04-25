@@ -1,0 +1,10 @@
+/* Polkit rules stub for Yet-Another-Wireguard-Gui.
+ * Grants wheel-group members admin authentication for all wireguard actions.
+ * Concrete action IDs will be defined in Milestone 2 (Polkit integration).
+ */
+polkit.addRule(function(action, subject) {
+    if (action.id.startsWith("org.example.wireguard.") &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.AUTH_ADMIN;
+    }
+});

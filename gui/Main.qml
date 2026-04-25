@@ -6,14 +6,14 @@ import Qt.labs.platform as Platform
 
 Kirigami.ApplicationWindow {
     id: root
-    title: "Yet Another Wireguard GUI"
+    title: "Yet Another Wireguard Gui"
     width: 450
     height: 800
 
     Platform.SystemTrayIcon {
         visible: true
         icon.source: "qrc:/app-icon.png"
-        tooltip: "Yet Another Wireguard GUI"
+        tooltip: "Yet Another Wireguard Gui"
         onActivated: root.visible ? root.hide() : root.show()
     }
 

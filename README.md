@@ -1,4 +1,4 @@
-# Yet Another Wireguard GUI
+# Yet Another Wireguard Gui
 
 KDE Plasma Frontend für WireGuard (Sentinel-Architektur: Root-Daemon + Kirigami-GUI via D-Bus).
 
@@ -57,7 +57,7 @@ sudo install -m 600 /path/to/YourProfile.conf /etc/wireguard/
 # Terminal 1 — Daemon (root)
 sudo ./build/daemon/yawg-daemon
 
-# Terminal 2 — GUI
+# Terminal 2 — Gui
 ./build/gui/yawg-gui
 ```
 

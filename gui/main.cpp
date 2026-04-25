@@ -1,7 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QDBusMetaType>
 #include "WireguardTypes.h"
-#include "WireguardManagerProxy.h"
 
 int main(int argc, char *argv[])
 {

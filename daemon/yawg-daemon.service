@@ -1,0 +1,13 @@
+[Unit]
+Description=Yet Another WireGuard GUI – System Daemon
+After=dbus.service network.target
+Requires=dbus.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/yawg-daemon
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

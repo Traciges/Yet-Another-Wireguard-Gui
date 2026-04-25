@@ -1,8 +1,9 @@
 #pragma once
+#include <QDBusContext>
 #include <QObject>
 #include "WireguardTypes.h"
 
-class WireguardManager : public QObject {
+class WireguardManager : public QObject, protected QDBusContext {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "io.github.traciges.WireguardManager")
 

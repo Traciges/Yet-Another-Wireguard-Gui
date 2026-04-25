@@ -7,8 +7,8 @@ import Qt.labs.platform as Platform
 Kirigami.ApplicationWindow {
     id: root
     title: "Yet Another Wireguard GUI"
-    width: 520
-    height: 720
+    width: 450
+    height: 800
 
     Platform.SystemTrayIcon {
         visible: true

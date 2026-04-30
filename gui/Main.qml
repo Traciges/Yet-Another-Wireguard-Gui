@@ -10,6 +10,23 @@ Kirigami.ApplicationWindow {
     width: 450
     height: 800
 
+    property string selectedProfile: ""
+
+    Platform.FileDialog {
+        id: importDialog
+        title: "WireGuard-Konfiguration importieren"
+        nameFilters: ["WireGuard-Konfigurationen (*.conf)"]
+        onAccepted: wireguardManager.importProfile(importDialog.file)
+    }
+
+    Kirigami.PromptDialog {
+        id: deleteDialog
+        title: "Profil löschen"
+        subtitle: "Soll das Profil \"" + root.selectedProfile + "\" wirklich gelöscht werden?"
+        standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
+        onAccepted: wireguardManager.deleteProfile(root.selectedProfile)
+    }
+
     Platform.SystemTrayIcon {
         visible: true
         icon.source: "qrc:/app-icon.png"
@@ -23,6 +40,7 @@ Kirigami.ApplicationWindow {
         target: wireguardManager
         function onProfilesLoaded(profiles) {
             profileModel.clear()
+            root.selectedProfile = ""
             for (let i = 0; i < profiles.length; i++) {
                 profileModel.append(profiles[i])
             }
@@ -34,6 +52,14 @@ Kirigami.ApplicationWindow {
                     break
                 }
             }
+        }
+        function onProfileImported(name) {
+            wireguardManager.refreshProfiles()
+            root.showPassiveNotification("Profil \"" + name + "\" erfolgreich importiert.")
+        }
+        function onProfileDeleted(name) {
+            wireguardManager.refreshProfiles()
+            root.showPassiveNotification("Profil \"" + name + "\" gelöscht.")
         }
         function onErrorOccurred(profileName, errorMessage) {
             root.showPassiveNotification(
@@ -47,7 +73,7 @@ Kirigami.ApplicationWindow {
     pageStack.initialPage: Kirigami.Page {
         title: "Profiles"
 
-actions: [
+        actions: [
             Kirigami.Action {
                 text: "Add"
                 icon.name: "list-add"
@@ -56,12 +82,13 @@ actions: [
             Kirigami.Action {
                 text: "Remove"
                 icon.name: "list-remove"
-                onTriggered: console.log("Remove profile (not implemented)")
+                enabled: root.selectedProfile !== ""
+                onTriggered: deleteDialog.open()
             },
             Kirigami.Action {
                 text: "Import"
                 icon.name: "document-import"
-                onTriggered: root.showPassiveNotification("Not implemented yet")
+                onTriggered: importDialog.open()
             },
             Kirigami.Action {
                 text: "Export"
@@ -90,6 +117,24 @@ actions: [
                 id: card
                 required property string name
                 required property string status
+
+                highlighted: card.name === root.selectedProfile
+
+                HoverHandler {
+                    id: hoverHandler
+                    cursorShape: Qt.PointingHandCursor
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: "transparent"
+                    border.color: Kirigami.Theme.highlightColor
+                    border.width: 2
+                    radius: Kirigami.Units.smallSpacing
+                    opacity: card.highlighted ? 1.0 : 0.0
+                    Behavior on opacity { NumberAnimation { duration: 120 } }
+                    z: 1
+                }
 
                 contentItem: RowLayout {
                     spacing: Kirigami.Units.largeSpacing
@@ -125,6 +170,10 @@ actions: [
                         checked: card.status === "active"
                         onToggled: wireguardManager.toggleProfile(card.name, checked)
                     }
+                }
+
+                TapHandler {
+                    onTapped: root.selectedProfile = card.name === root.selectedProfile ? "" : card.name
                 }
             }
         }

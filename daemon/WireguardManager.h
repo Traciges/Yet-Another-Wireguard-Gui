@@ -13,8 +13,12 @@ public:
 public Q_SLOTS:
     ProfileList ListProfiles();
     void ToggleProfile(const QString &name, bool targetState);
+    void ImportProfile(const QString &name, const QString &contents);
+    void DeleteProfile(const QString &name);
 
 Q_SIGNALS:
     void ProfileStatusChanged(const QString &name, const QString &status);
+    void ProfileImported(const QString &name);
+    void ProfileDeleted(const QString &name);
     void ErrorOccurred(const QString &profileName, const QString &errorMessage);
 };

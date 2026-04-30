@@ -12,6 +12,23 @@
       <arg name="targetState" type="b" direction="in"/>
     </method>
 
+    <method name="ImportProfile">
+      <arg name="name"     type="s" direction="in"/>
+      <arg name="contents" type="s" direction="in"/>
+    </method>
+
+    <method name="DeleteProfile">
+      <arg name="name" type="s" direction="in"/>
+    </method>
+
+    <signal name="ProfileImported">
+      <arg name="name" type="s"/>
+    </signal>
+
+    <signal name="ProfileDeleted">
+      <arg name="name" type="s"/>
+    </signal>
+
     <signal name="ProfileStatusChanged">
       <arg name="name" type="s"/>
       <arg name="status" type="s"/>

@@ -29,6 +29,14 @@ Kirigami.ApplicationWindow {
         onAccepted: wireguardManager.importProfile(importDialog.file)
     }
 
+    Platform.FileDialog {
+        id: exportDialog
+        title: "Export WireGuard Configuration"
+        fileMode: Platform.FileDialog.SaveFile
+        nameFilters: ["WireGuard Configurations (*.conf)"]
+        onAccepted: wireguardManager.exportProfile(root.selectedProfile, exportDialog.file)
+    }
+
     Kirigami.Dialog {
         id: addDialog
         title: "Add WireGuard Profile"
@@ -235,6 +243,10 @@ Kirigami.ApplicationWindow {
             root.showPassiveNotification("Profile \"" + name + "\" deleted.");
         }
 
+        function onProfileExported(name) {
+            root.showPassiveNotification("Profile \"" + name + "\" exported successfully.");
+        }
+
         function onErrorOccurred(profileName, errorMessage) {
             root.showPassiveNotification((profileName ? profileName + ": " : "") + errorMessage, "long");
         }
@@ -265,7 +277,11 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: "Export"
                 icon.name: "document-export"
-                onTriggered: root.showPassiveNotification("Not implemented yet")
+                enabled: root.selectedProfile !== ""
+                onTriggered: {
+                    exportDialog.currentFile = "file:///" + root.selectedProfile + ".conf"
+                    exportDialog.open()
+                }
             },
             Kirigami.Action {
                 text: "Quit"

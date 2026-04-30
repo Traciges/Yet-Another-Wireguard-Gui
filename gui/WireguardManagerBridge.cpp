@@ -82,6 +82,32 @@ void WireguardManagerBridge::deleteProfile(const QString &name)
     m_proxy->DeleteProfile(name);
 }
 
+void WireguardManagerBridge::exportProfile(const QString &name, const QUrl &fileUrl)
+{
+    auto *watcher = new QDBusPendingCallWatcher(m_proxy->ExportProfile(name), this);
+    connect(watcher, &QDBusPendingCallWatcher::finished, this,
+            [this, name, fileUrl](QDBusPendingCallWatcher *w) {
+                w->deleteLater();
+                QDBusPendingReply<QString> reply = *w;
+                if (reply.isError()) {
+                    emit errorOccurred(name, reply.error().message());
+                    return;
+                }
+
+                const QString path = fileUrl.toLocalFile();
+                QFile file(path);
+                if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                    emit errorOccurred(name, QStringLiteral("Could not write file: %1")
+                                       .arg(file.errorString()));
+                    return;
+                }
+                file.write(reply.value().toUtf8());
+                file.close();
+
+                emit profileExported(name);
+            });
+}
+
 void WireguardManagerBridge::addProfile(
     const QString &name, const QString &privateKey, const QString &address,
     const QString &dns, const QString &mtu, const QString &publicKey,

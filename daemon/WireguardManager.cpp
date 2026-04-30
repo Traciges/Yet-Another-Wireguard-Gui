@@ -180,6 +180,59 @@ void WireguardManager::ImportProfile(const QString &name, const QString &content
         PolkitQt1::Authority::AllowUserInteraction);
 }
 
+QString WireguardManager::ExportProfile(const QString &name)
+{
+    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
+    if (!nameRegex.match(name).hasMatch()) {
+        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid profile name"));
+        return {};
+    }
+
+    const QString filePath = QStringLiteral("/etc/wireguard/%1.conf").arg(name);
+    if (!QFileInfo::exists(filePath)) {
+        sendErrorReply(QDBusError::InvalidArgs,
+                       QStringLiteral("Profile \"%1\" not found").arg(name));
+        return {};
+    }
+
+    setDelayedReply(true);
+    const QDBusMessage msg = message();
+    QDBusConnection conn = connection();
+
+    auto *auth = PolkitQt1::Authority::instance();
+    const auto subject = PolkitQt1::SystemBusNameSubject(msg.service());
+
+    connect(auth, &PolkitQt1::Authority::checkAuthorizationFinished,
+            this, [filePath, msg, conn](PolkitQt1::Authority::Result result) mutable {
+
+        if (result != PolkitQt1::Authority::Yes) {
+            conn.send(msg.createErrorReply(
+                QDBusError::AccessDenied,
+                QStringLiteral("Polkit: access denied")));
+            return;
+        }
+
+        QFile file(filePath);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            conn.send(msg.createErrorReply(
+                QDBusError::Failed,
+                QStringLiteral("Could not read file: %1").arg(file.errorString())));
+            return;
+        }
+
+        const QString contents = QString::fromUtf8(file.readAll());
+        conn.send(msg.createReply(contents));
+
+    }, Qt::SingleShotConnection);
+
+    auth->checkAuthorization(
+        QStringLiteral("io.github.traciges.wireguard.export"),
+        subject,
+        PolkitQt1::Authority::AllowUserInteraction);
+
+    return {};
+}
+
 void WireguardManager::DeleteProfile(const QString &name)
 {
     static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));

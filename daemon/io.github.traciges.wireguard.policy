@@ -35,6 +35,19 @@
     </defaults>
   </action>
 
+  <action id="io.github.traciges.wireguard.export">
+    <description>WireGuard configuration exportieren</description>
+    <description xml:lang="de">WireGuard-Konfiguration exportieren</description>
+    <message>Authentifizierung erforderlich, um eine WireGuard-Konfiguration zu exportieren.</message>
+    <message xml:lang="de">Authentifizierung erforderlich, um eine WireGuard-Konfiguration zu exportieren.</message>
+    <icon_name>document-export</icon_name>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+
   <action id="io.github.traciges.wireguard.import">
     <description>WireGuard-Konfiguration importieren</description>
     <description xml:lang="de">WireGuard-Konfiguration importieren</description>

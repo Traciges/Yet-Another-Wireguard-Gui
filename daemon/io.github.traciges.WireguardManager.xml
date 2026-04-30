@@ -21,6 +21,11 @@
       <arg name="name" type="s" direction="in"/>
     </method>
 
+    <method name="ExportProfile">
+      <arg name="name"     type="s" direction="in"/>
+      <arg name="contents" type="s" direction="out"/>
+    </method>
+
     <signal name="ProfileImported">
       <arg name="name" type="s"/>
     </signal>

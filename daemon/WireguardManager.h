@@ -15,6 +15,7 @@ public Q_SLOTS:
     void ToggleProfile(const QString &name, bool targetState);
     void ImportProfile(const QString &name, const QString &contents);
     void DeleteProfile(const QString &name);
+    QString ExportProfile(const QString &name);
 
 Q_SIGNALS:
     void ProfileStatusChanged(const QString &name, const QString &status);

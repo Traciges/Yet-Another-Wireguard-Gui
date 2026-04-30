@@ -190,7 +190,7 @@ void WireguardManager::DeleteProfile(const QString &name)
 
     if (QNetworkInterface::interfaceFromName(name).isValid()) {
         sendErrorReply(QDBusError::InvalidArgs,
-                       QStringLiteral("Profile \"%1\" is active — please disconnect first").arg(name));
+                       QStringLiteral("Profile \"%1\" is active - please disconnect first").arg(name));
         return;
     }
 

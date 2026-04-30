@@ -16,10 +16,10 @@ Kirigami.ApplicationWindow {
 
     function formatRate(bytesPerSec) {
         if (bytesPerSec < 1024)
-            return bytesPerSec.toFixed(0) + " B/s"
+            return bytesPerSec.toFixed(0) + " B/s";
         if (bytesPerSec < 1048576)
-            return (bytesPerSec / 1024).toFixed(1) + " KB/s"
-        return (bytesPerSec / 1048576).toFixed(2) + " MB/s"
+            return (bytesPerSec / 1024).toFixed(1) + " KB/s";
+        return (bytesPerSec / 1048576).toFixed(2) + " MB/s";
     }
 
     Platform.FileDialog {
@@ -27,6 +27,123 @@ Kirigami.ApplicationWindow {
         title: "Import WireGuard Configuration"
         nameFilters: ["WireGuard Configurations (*.conf)"]
         onAccepted: wireguardManager.importProfile(importDialog.file)
+    }
+
+    Kirigami.Dialog {
+        id: addDialog
+        title: "Add WireGuard Profile"
+        preferredWidth: Kirigami.Units.gridUnit * 32
+        standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
+
+        property bool canAccept: addNameField.text.trim() !== "" && addPrivKeyField.text.trim() !== "" && addAddrField.text.trim() !== "" && addPubKeyField.text.trim() !== "" && addAllowedField.text.trim() !== "" && addEndpointField.text.trim() !== ""
+
+        Component.onCompleted: {
+            const btn = standardButton(Kirigami.Dialog.Ok);
+            if (btn)
+                btn.enabled = Qt.binding(() => addDialog.canAccept);
+        }
+
+        onOpened: {
+            addNameField.text = "";
+            addPrivKeyField.text = "";
+            addAddrField.text = "";
+            addDnsField.text = "";
+            addMtuField.text = "";
+            addPubKeyField.text = "";
+            addPskField.text = "";
+            addAllowedField.text = "";
+            addEndpointField.text = "";
+            addNameField.forceActiveFocus();
+        }
+
+        onAccepted: {
+            wireguardManager.addProfile(addNameField.text.trim(), addPrivKeyField.text.trim(), addAddrField.text.trim(), addDnsField.text.trim(), addMtuField.text.trim(), addPubKeyField.text.trim(), addPskField.text.trim(), addAllowedField.text.trim(), addEndpointField.text.trim());
+        }
+
+        ColumnLayout {
+            spacing: Kirigami.Units.largeSpacing
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: Kirigami.Units.largeSpacing
+            anchors.rightMargin: Kirigami.Units.largeSpacing
+
+            Kirigami.Heading {
+                text: "[Interface]"
+                level: 4
+                Layout.fillWidth: true
+            }
+
+            Kirigami.FormLayout {
+                Layout.fillWidth: true
+
+                Controls.TextField {
+                    id: addNameField
+                    Kirigami.FormData.label: "Name:"
+                    placeholderText: "home-vpn  (max 15 chars)"
+                    maximumLength: 15
+                }
+                Controls.TextField {
+                    id: addPrivKeyField
+                    Kirigami.FormData.label: "Private Key:"
+                    placeholderText: "base64-encoded private key"
+                }
+                Controls.TextField {
+                    id: addAddrField
+                    Kirigami.FormData.label: "Address:"
+                    placeholderText: "10.0.0.2/24"
+                }
+                Controls.TextField {
+                    id: addDnsField
+                    Kirigami.FormData.label: "DNS:"
+                    placeholderText: "optional, e.g. 192.168.1.1"
+                }
+                Controls.TextField {
+                    id: addMtuField
+                    Kirigami.FormData.label: "MTU:"
+                    placeholderText: "optional, e.g. 1420"
+                    inputMethodHints: Qt.ImhDigitsOnly
+                }
+            }
+
+            Kirigami.Heading {
+                text: "[Peer]"
+                level: 4
+                Layout.fillWidth: true
+            }
+
+            Kirigami.FormLayout {
+                Layout.fillWidth: true
+
+                Controls.TextField {
+                    id: addPubKeyField
+                    Kirigami.FormData.label: "Public Key:"
+                    placeholderText: "base64-encoded public key"
+                }
+                Controls.TextField {
+                    id: addPskField
+                    Kirigami.FormData.label: "Preshared Key:"
+                    placeholderText: "optional"
+                }
+                Controls.TextField {
+                    id: addAllowedField
+                    Kirigami.FormData.label: "Allowed IPs:"
+                    placeholderText: "0.0.0.0/0, ::/0"
+                }
+                Controls.TextField {
+                    id: addEndpointField
+                    Kirigami.FormData.label: "Endpoint:"
+                    placeholderText: "vpn.example.com:51820"
+                }
+            }
+
+            Controls.Label {
+                text: "DNS, MTU and Preshared Key are optional - all other fields are required."
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                color: Kirigami.Theme.disabledTextColor
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+        }
     }
 
     Kirigami.PromptDialog {
@@ -44,7 +161,9 @@ Kirigami.ApplicationWindow {
         onActivated: root.visible ? root.hide() : root.show()
     }
 
-    ListModel { id: profileModel }
+    ListModel {
+        id: profileModel
+    }
 
     Timer {
         id: statsTimer
@@ -52,9 +171,10 @@ Kirigami.ApplicationWindow {
         repeat: true
         running: {
             for (let i = 0; i < profileModel.count; i++) {
-                if (profileModel.get(i).status === "active") return true
+                if (profileModel.get(i).status === "active")
+                    return true;
             }
-            return false
+            return false;
         }
         onTriggered: wireguardManager.refreshProfiles()
     }
@@ -63,59 +183,60 @@ Kirigami.ApplicationWindow {
         target: wireguardManager
 
         function onProfilesLoaded(profiles) {
-            const now = Date.now() / 1000.0
-            const dt = root.lastRefreshTime > 0 ? (now - root.lastRefreshTime) : 0
-            root.lastRefreshTime = now
+            const now = Date.now() / 1000.0;
+            const dt = root.lastRefreshTime > 0 ? (now - root.lastRefreshTime) : 0;
+            root.lastRefreshTime = now;
 
-            const savedSelection = root.selectedProfile
-            profileModel.clear()
+            const savedSelection = root.selectedProfile;
+            profileModel.clear();
             for (let i = 0; i < profiles.length; i++) {
-                const p = profiles[i]
-                const prev = root.prevStats[p.name]
-                let rxRate = 0, txRate = 0
+                const p = profiles[i];
+                const prev = root.prevStats[p.name];
+                let rxRate = 0, txRate = 0;
                 if (dt > 0.1 && prev && p.status === "active") {
-                    rxRate = Math.max(0, (p.rxBytes - prev.rx) / dt)
-                    txRate = Math.max(0, (p.txBytes - prev.tx) / dt)
+                    rxRate = Math.max(0, (p.rxBytes - prev.rx) / dt);
+                    txRate = Math.max(0, (p.txBytes - prev.tx) / dt);
                 }
-                root.prevStats[p.name] = {rx: p.rxBytes || 0, tx: p.txBytes || 0}
+                root.prevStats[p.name] = {
+                    rx: p.rxBytes || 0,
+                    tx: p.txBytes || 0
+                };
                 profileModel.append({
                     name: p.name,
                     status: p.status,
                     rxRate: Math.round(rxRate),
                     txRate: Math.round(txRate)
-                })
+                });
             }
-            root.selectedProfile = savedSelection
+            root.selectedProfile = savedSelection;
         }
 
         function onProfileStatusChanged(name, status) {
             for (let i = 0; i < profileModel.count; i++) {
                 if (profileModel.get(i).name === name) {
-                    profileModel.setProperty(i, "status", status)
+                    profileModel.setProperty(i, "status", status);
                     if (status === "inactive") {
-                        profileModel.setProperty(i, "rxRate", 0)
-                        profileModel.setProperty(i, "txRate", 0)
-                        delete root.prevStats[name]
+                        profileModel.setProperty(i, "rxRate", 0);
+                        profileModel.setProperty(i, "txRate", 0);
+                        delete root.prevStats[name];
                     }
-                    break
+                    break;
                 }
             }
         }
 
         function onProfileImported(name) {
-            wireguardManager.refreshProfiles()
-            root.showPassiveNotification("Profile \"" + name + "\" imported successfully.")
+            wireguardManager.refreshProfiles();
+            root.showPassiveNotification("Profile \"" + name + "\" imported successfully.");
         }
 
         function onProfileDeleted(name) {
-            wireguardManager.refreshProfiles()
-            root.showPassiveNotification("Profile \"" + name + "\" deleted.")
+            wireguardManager.refreshProfiles();
+            root.showPassiveNotification("Profile \"" + name + "\" deleted.");
         }
 
         function onErrorOccurred(profileName, errorMessage) {
-            root.showPassiveNotification(
-                (profileName ? profileName + ": " : "") + errorMessage, "long"
-            )
+            root.showPassiveNotification((profileName ? profileName + ": " : "") + errorMessage, "long");
         }
     }
 
@@ -128,7 +249,7 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: "Add"
                 icon.name: "list-add"
-                onTriggered: console.log("Add profile (not implemented)")
+                onTriggered: addDialog.open()
             },
             Kirigami.Action {
                 text: "Remove"
@@ -189,7 +310,11 @@ Kirigami.ApplicationWindow {
                         border.width: 2
                         radius: Kirigami.Units.smallSpacing
                         opacity: card.highlighted ? 1.0 : 0.0
-                        Behavior on opacity { NumberAnimation { duration: 120 } }
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: 120
+                            }
+                        }
                         z: 1
                     }
 
@@ -201,7 +326,11 @@ Kirigami.ApplicationWindow {
                             implicitWidth: Kirigami.Units.iconSizes.medium
                             implicitHeight: Kirigami.Units.iconSizes.medium
                             opacity: card.status === "active" ? 1.0 : 0.4
-                            Behavior on opacity { NumberAnimation { duration: 150 } }
+                            Behavior on opacity {
+                                NumberAnimation {
+                                    duration: 150
+                                }
+                            }
                         }
 
                         ColumnLayout {
@@ -222,18 +351,18 @@ Kirigami.ApplicationWindow {
                                     width: 8
                                     height: 8
                                     radius: 4
-                                    color: card.status === "active"
-                                        ? Kirigami.Theme.positiveTextColor
-                                        : Kirigami.Theme.disabledTextColor
-                                    Behavior on color { ColorAnimation { duration: 200 } }
+                                    color: card.status === "active" ? Kirigami.Theme.positiveTextColor : Kirigami.Theme.disabledTextColor
+                                    Behavior on color {
+                                        ColorAnimation {
+                                            duration: 200
+                                        }
+                                    }
                                 }
 
                                 Controls.Label {
                                     text: card.status === "active" ? "Active" : "Inactive"
                                     font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                    color: card.status === "active"
-                                        ? Kirigami.Theme.positiveTextColor
-                                        : Kirigami.Theme.disabledTextColor
+                                    color: card.status === "active" ? Kirigami.Theme.positiveTextColor : Kirigami.Theme.disabledTextColor
                                 }
 
                                 Controls.Label {

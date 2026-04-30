@@ -81,3 +81,41 @@ void WireguardManagerBridge::deleteProfile(const QString &name)
 {
     m_proxy->DeleteProfile(name);
 }
+
+void WireguardManagerBridge::addProfile(
+    const QString &name, const QString &privateKey, const QString &address,
+    const QString &dns, const QString &mtu, const QString &publicKey,
+    const QString &presharedKey, const QString &allowedIPs, const QString &endpoint)
+{
+    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
+    if (!nameRegex.match(name).hasMatch()) {
+        emit errorOccurred(QString(), QStringLiteral("Invalid profile name: \"%1\"").arg(name));
+        return;
+    }
+
+    // Strip embedded newlines from all values to prevent config file corruption
+    auto clean = [](const QString &s) {
+        return QString(s).remove(u'\n').remove(u'\r');
+    };
+
+    QString contents = QStringLiteral("[Interface]\n");
+    contents += QStringLiteral("PrivateKey = %1\n").arg(clean(privateKey));
+    contents += QStringLiteral("Address = %1\n").arg(clean(address));
+    if (!dns.isEmpty())
+        contents += QStringLiteral("DNS = %1\n").arg(clean(dns));
+    if (!mtu.isEmpty())
+        contents += QStringLiteral("MTU = %1\n").arg(clean(mtu));
+    contents += QStringLiteral("\n[Peer]\n");
+    contents += QStringLiteral("PublicKey = %1\n").arg(clean(publicKey));
+    if (!presharedKey.isEmpty())
+        contents += QStringLiteral("PresharedKey = %1\n").arg(clean(presharedKey));
+    contents += QStringLiteral("AllowedIPs = %1\n").arg(clean(allowedIPs));
+    contents += QStringLiteral("Endpoint = %1\n").arg(clean(endpoint));
+
+    if (contents.toUtf8().size() > 65536) {
+        emit errorOccurred(QString(), QStringLiteral("Configuration too large (max. 64 KB)"));
+        return;
+    }
+
+    m_proxy->ImportProfile(name, contents);
+}

@@ -16,6 +16,9 @@ public slots:
     void toggleProfile(const QString &name, bool targetState);
     void importProfile(const QUrl &fileUrl);
     void deleteProfile(const QString &name);
+    void addProfile(const QString &name, const QString &privateKey, const QString &address,
+                    const QString &dns, const QString &mtu, const QString &publicKey,
+                    const QString &presharedKey, const QString &allowedIPs, const QString &endpoint);
 
 signals:
     void profilesLoaded(const QVariantList &profiles);

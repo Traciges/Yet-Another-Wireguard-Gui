@@ -54,10 +54,10 @@ sudo install -m 600 /path/to/YourProfile.conf /etc/wireguard/
 ## Run
 
 ```bash
-# Terminal 1 — Daemon (root)
+# Terminal 1 - Daemon (root)
 sudo ./build/daemon/yawg-daemon
 
-# Terminal 2 — GUI
+# Terminal 2 - GUI
 ./build/gui/yawg-gui
 ```
 

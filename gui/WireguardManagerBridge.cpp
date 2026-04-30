@@ -37,6 +37,8 @@ void WireguardManagerBridge::refreshProfiles()
                     QVariantMap entry;
                     entry[QStringLiteral("name")] = info.name;
                     entry[QStringLiteral("status")] = info.status;
+                    entry[QStringLiteral("rxBytes")] = info.rxBytes;
+                    entry[QStringLiteral("txBytes")] = info.txBytes;
                     result.append(entry);
                 }
                 emit profilesLoaded(result);

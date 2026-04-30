@@ -4,7 +4,7 @@
 
     <method name="ListProfiles">
       <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="ProfileList"/>
-      <arg name="profiles" type="a(ss)" direction="out"/>
+      <arg name="profiles" type="a(sstt)" direction="out"/>
     </method>
 
     <method name="ToggleProfile">

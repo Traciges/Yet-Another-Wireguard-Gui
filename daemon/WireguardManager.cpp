@@ -4,6 +4,7 @@
 #include <QDBusError>
 #include <QDBusMessage>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QNetworkInterface>
 #include <QProcess>
@@ -27,7 +28,20 @@ ProfileList WireguardManager::ListProfiles()
     for (const QString &conf : configs) {
         const QString name = QFileInfo(conf).completeBaseName();
         const bool active = QNetworkInterface::interfaceFromName(name).isValid();
-        profiles.append({name, active ? QStringLiteral("active") : QStringLiteral("inactive")});
+
+        quint64 rx = 0, tx = 0;
+        if (active) {
+            auto readStat = [&](const QString &stat) -> quint64 {
+                QFile f(QStringLiteral("/sys/class/net/%1/statistics/%2").arg(name, stat));
+                if (f.open(QIODevice::ReadOnly))
+                    return f.readAll().trimmed().toULongLong();
+                return 0;
+            };
+            rx = readStat(QStringLiteral("rx_bytes"));
+            tx = readStat(QStringLiteral("tx_bytes"));
+        }
+
+        profiles.append({name, active ? QStringLiteral("active") : QStringLiteral("inactive"), rx, tx});
     }
     return profiles;
 }

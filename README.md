@@ -1,8 +1,8 @@
 # Yet Another Wireguard Gui
 
-KDE Plasma Frontend für WireGuard (Sentinel-Architektur: Root-Daemon + Kirigami-GUI via D-Bus).
+KDE Plasma frontend for WireGuard (sentinel architecture: root daemon + Kirigami GUI via D-Bus).
 
-## Abhängigkeiten installieren
+## Install Dependencies
 
 ### Fedora
 ```bash
@@ -28,11 +28,11 @@ sudo apt install \
     qt6-base-dev qt6-declarative-dev \
     libkf6kirigami-dev \
     libpolkit-qt6-1-dev
-# Falls libkf6kirigami-dev fehlt:
+# If libkf6kirigami-dev is missing:
 # sudo add-apt-repository ppa:kubuntu-ppa/backports
 ```
 
-## Bauen
+## Build
 
 ```bash
 mkdir build && cd build
@@ -40,28 +40,28 @@ cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug
 ninja
 ```
 
-## Einmalige Systemkonfiguration (braucht root)
+## One-Time System Configuration (requires root)
 
 ```bash
-# D-Bus Policy installieren
+# Install D-Bus policy
 sudo install -m 644 daemon/org.example.WireguardManager.conf /etc/dbus-1/system.d/
 sudo systemctl reload dbus
 
-# WireGuard-Testprofil ablegen
+# Place WireGuard test profile
 sudo install -m 600 /path/to/YourProfile.conf /etc/wireguard/
 ```
 
-## Starten
+## Run
 
 ```bash
 # Terminal 1 — Daemon (root)
 sudo ./build/daemon/yawg-daemon
 
-# Terminal 2 — Gui
+# Terminal 2 — GUI
 ./build/gui/yawg-gui
 ```
 
-## D-Bus Interface testen
+## Test D-Bus Interface
 
 ```bash
 busctl call org.example.WireguardManager \

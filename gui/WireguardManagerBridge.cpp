@@ -55,20 +55,20 @@ void WireguardManagerBridge::importProfile(const QUrl &fileUrl)
 
     static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
     if (!nameRegex.match(name).hasMatch()) {
-        emit errorOccurred(QString(), QStringLiteral("Ungültiger Dateiname: \"%1\"").arg(name));
+        emit errorOccurred(QString(), QStringLiteral("Invalid filename: \"%1\"").arg(name));
         return;
     }
 
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        emit errorOccurred(QString(), QStringLiteral("Datei konnte nicht geöffnet werden: %1")
+        emit errorOccurred(QString(), QStringLiteral("Could not open file: %1")
                            .arg(file.errorString()));
         return;
     }
 
     const QByteArray data = file.read(65537);
     if (data.size() > 65536) {
-        emit errorOccurred(QString(), QStringLiteral("Konfigurationsdatei zu groß (max. 64 KB)"));
+        emit errorOccurred(QString(), QStringLiteral("Configuration file too large (max. 64 KB)"));
         return;
     }
 

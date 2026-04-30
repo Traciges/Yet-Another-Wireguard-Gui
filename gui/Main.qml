@@ -14,15 +14,15 @@ Kirigami.ApplicationWindow {
 
     Platform.FileDialog {
         id: importDialog
-        title: "WireGuard-Konfiguration importieren"
-        nameFilters: ["WireGuard-Konfigurationen (*.conf)"]
+        title: "Import WireGuard Configuration"
+        nameFilters: ["WireGuard Configurations (*.conf)"]
         onAccepted: wireguardManager.importProfile(importDialog.file)
     }
 
     Kirigami.PromptDialog {
         id: deleteDialog
-        title: "Profil löschen"
-        subtitle: "Soll das Profil \"" + root.selectedProfile + "\" wirklich gelöscht werden?"
+        title: "Delete Profile"
+        subtitle: "Are you sure you want to delete the profile \"" + root.selectedProfile + "\"?"
         standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
         onAccepted: wireguardManager.deleteProfile(root.selectedProfile)
     }
@@ -55,11 +55,11 @@ Kirigami.ApplicationWindow {
         }
         function onProfileImported(name) {
             wireguardManager.refreshProfiles()
-            root.showPassiveNotification("Profil \"" + name + "\" erfolgreich importiert.")
+            root.showPassiveNotification("Profile \"" + name + "\" imported successfully.")
         }
         function onProfileDeleted(name) {
             wireguardManager.refreshProfiles()
-            root.showPassiveNotification("Profil \"" + name + "\" gelöscht.")
+            root.showPassiveNotification("Profile \"" + name + "\" deleted.")
         }
         function onErrorOccurred(profileName, errorMessage) {
             root.showPassiveNotification(

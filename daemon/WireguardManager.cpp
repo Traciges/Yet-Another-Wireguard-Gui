@@ -37,7 +37,7 @@ void WireguardManager::ToggleProfile(const QString &name, bool targetState)
     // Path Traversal Guard – WireGuard interface names: max 15 chars, IFNAMSIZ limit
     static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
     if (!nameRegex.match(name).hasMatch()) {
-        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Ungültiger Profilname"));
+        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid profile name"));
         return;
     }
 
@@ -54,7 +54,7 @@ void WireguardManager::ToggleProfile(const QString &name, bool targetState)
         if (result != PolkitQt1::Authority::Yes) {
             conn.send(msg.createErrorReply(
                 QDBusError::AccessDenied,
-                QStringLiteral("Polkit: Zugriff verweigert")));
+                QStringLiteral("Polkit: access denied")));
             return;
         }
 
@@ -68,7 +68,7 @@ void WireguardManager::ToggleProfile(const QString &name, bool targetState)
         connect(proc, &QProcess::errorOccurred,
                 this, [this, name, proc](QProcess::ProcessError) {
             qWarning() << "wg-quick failed to start:" << proc->errorString();
-            emit ErrorOccurred(name, QStringLiteral("wg-quick konnte nicht gestartet werden: %1")
+            emit ErrorOccurred(name, QStringLiteral("wg-quick failed to start: %1")
                                .arg(proc->errorString()));
             proc->deleteLater();
         });
@@ -103,19 +103,19 @@ void WireguardManager::ImportProfile(const QString &name, const QString &content
 {
     static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
     if (!nameRegex.match(name).hasMatch()) {
-        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Ungültiger Profilname"));
+        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid profile name"));
         return;
     }
 
     if (contents.toUtf8().size() > 65536) {
-        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Konfigurationsdatei zu groß"));
+        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Configuration file too large"));
         return;
     }
 
     const QString destPath = QStringLiteral("/etc/wireguard/%1.conf").arg(name);
     if (QFileInfo::exists(destPath)) {
         sendErrorReply(QDBusError::InvalidArgs,
-                       QStringLiteral("Profil \"%1\" existiert bereits").arg(name));
+                       QStringLiteral("Profile \"%1\" already exists").arg(name));
         return;
     }
 
@@ -132,7 +132,7 @@ void WireguardManager::ImportProfile(const QString &name, const QString &content
         if (result != PolkitQt1::Authority::Yes) {
             conn.send(msg.createErrorReply(
                 QDBusError::AccessDenied,
-                QStringLiteral("Polkit: Zugriff verweigert")));
+                QStringLiteral("Polkit: access denied")));
             return;
         }
 
@@ -140,7 +140,7 @@ void WireguardManager::ImportProfile(const QString &name, const QString &content
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             conn.send(msg.createErrorReply(
                 QDBusError::Failed,
-                QStringLiteral("Datei konnte nicht erstellt werden: %1").arg(file.errorString())));
+                QStringLiteral("Could not create file: %1").arg(file.errorString())));
             return;
         }
 
@@ -150,7 +150,7 @@ void WireguardManager::ImportProfile(const QString &name, const QString &content
         if (!file.commit()) {
             conn.send(msg.createErrorReply(
                 QDBusError::Failed,
-                QStringLiteral("Datei konnte nicht gespeichert werden: %1").arg(file.errorString())));
+                QStringLiteral("Could not save file: %1").arg(file.errorString())));
             return;
         }
 
@@ -170,20 +170,20 @@ void WireguardManager::DeleteProfile(const QString &name)
 {
     static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
     if (!nameRegex.match(name).hasMatch()) {
-        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Ungültiger Profilname"));
+        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid profile name"));
         return;
     }
 
     if (QNetworkInterface::interfaceFromName(name).isValid()) {
         sendErrorReply(QDBusError::InvalidArgs,
-                       QStringLiteral("Profil \"%1\" ist aktiv — bitte zuerst trennen").arg(name));
+                       QStringLiteral("Profile \"%1\" is active — please disconnect first").arg(name));
         return;
     }
 
     const QString filePath = QStringLiteral("/etc/wireguard/%1.conf").arg(name);
     if (!QFileInfo::exists(filePath)) {
         sendErrorReply(QDBusError::InvalidArgs,
-                       QStringLiteral("Profil \"%1\" nicht gefunden").arg(name));
+                       QStringLiteral("Profile \"%1\" not found").arg(name));
         return;
     }
 
@@ -200,14 +200,14 @@ void WireguardManager::DeleteProfile(const QString &name)
         if (result != PolkitQt1::Authority::Yes) {
             conn.send(msg.createErrorReply(
                 QDBusError::AccessDenied,
-                QStringLiteral("Polkit: Zugriff verweigert")));
+                QStringLiteral("Polkit: access denied")));
             return;
         }
 
         if (!QFile::remove(filePath)) {
             conn.send(msg.createErrorReply(
                 QDBusError::Failed,
-                QStringLiteral("Datei konnte nicht gelöscht werden")));
+                QStringLiteral("Could not delete file")));
             return;
         }
 

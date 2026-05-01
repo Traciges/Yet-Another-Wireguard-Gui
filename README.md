@@ -55,8 +55,8 @@ Yet Another WireGuard GUI fills that gap for KDE Plasma users. A privileged syst
 ```
 ┌─────────────────┐        D-Bus (system bus)        ┌──────────────────┐
 │   yawg-gui      │ ◄──────────────────────────────► │   yawg-daemon    │
-│  (Kirigami UI)  │                                   │  (runs as root)  │
-└─────────────────┘                                   └──────────────────┘
+│  (Kirigami UI)  │                                  │  (runs as root)  │
+└─────────────────┘                                  └──────────────────┘
          │                                                     │
          │  PolicyKit authorization                            │ wg-quick
          └─────────────────────────────────────────►  /etc/wireguard/*.conf

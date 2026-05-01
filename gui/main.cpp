@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationName(QStringLiteral("yet-another-wireguard-gui"));
+    app.setApplicationVersion(QStringLiteral("1.0.0"));
     app.setOrganizationName(QStringLiteral("io.github.traciges"));
     app.setWindowIcon(QIcon(QStringLiteral(":/app-icon.png")));
 

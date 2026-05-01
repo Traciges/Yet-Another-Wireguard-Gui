@@ -7,7 +7,7 @@ set(DAEMON_SOURCES
 )
 
 qt_add_dbus_adaptor(DAEMON_SOURCES
-    io.github.traciges.WireguardManager.xml
+    ${CMAKE_SOURCE_DIR}/shared/io.github.traciges.WireguardManager.xml
     WireguardManager.h
     WireguardManager
 )
@@ -17,6 +17,7 @@ add_executable(yawg-daemon ${DAEMON_SOURCES})
 target_include_directories(yawg-daemon PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}/shared
 )
 
 target_link_libraries(yawg-daemon

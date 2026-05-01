@@ -25,10 +25,8 @@ QString SettingsManager::autoConnectProfile() const
 
 void SettingsManager::setAutostartEnabled(bool enabled)
 {
-    if (autostartEnabled() == enabled)
-        return;
-
     if (enabled) {
+        // Always rewrite to keep the file up-to-date (e.g. after app updates)
         if (!writeAutostartFile())
             return;
     } else {
@@ -78,7 +76,7 @@ bool SettingsManager::writeAutostartFile()
     out << "[Desktop Entry]\n"
         << "Type=Application\n"
         << "Name=Yet Another WireGuard Gui\n"
-        << "Exec=/usr/local/bin/yawg-gui\n"
+        << "Exec=/usr/local/bin/yawg-gui --tray\n"
         << "Icon=yawg-gui\n"
         << "Hidden=false\n"
         << "X-GNOME-Autostart-enabled=true\n";

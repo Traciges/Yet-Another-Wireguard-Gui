@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QDBusMetaType>
@@ -17,6 +18,11 @@ int main(int argc, char *argv[])
     app.setOrganizationName(QStringLiteral("io.github.traciges"));
     app.setWindowIcon(QIcon(QStringLiteral(":/app-icon.png")));
 
+    QCommandLineParser parser;
+    parser.addOption({QStringLiteral("tray"), QStringLiteral("Start minimized to system tray")});
+    parser.parse(app.arguments());
+    const bool startInTray = parser.isSet(QStringLiteral("tray"));
+
     qDBusRegisterMetaType<ProfileInfo>();
     qDBusRegisterMetaType<ProfileList>();
 
@@ -29,18 +35,14 @@ int main(int argc, char *argv[])
     SettingsManager settingsManager;
 
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty(
-        QStringLiteral("wireguardManager"), &bridge
-    );
-    engine.rootContext()->setContextProperty(
-        QStringLiteral("settingsManager"), &settingsManager
-    );
+    engine.rootContext()->setContextProperty(QStringLiteral("wireguardManager"), &bridge);
+    engine.rootContext()->setContextProperty(QStringLiteral("settingsManager"), &settingsManager);
+    engine.rootContext()->setContextProperty(QStringLiteral("startInTray"), startInTray);
 
     engine.load(QUrl(QStringLiteral("qrc:/YetAnotherWireguardGui/qml/Main.qml")));
 
-    if (engine.rootObjects().isEmpty()) {
+    if (engine.rootObjects().isEmpty())
         return 1;
-    }
 
     return app.exec();
 }

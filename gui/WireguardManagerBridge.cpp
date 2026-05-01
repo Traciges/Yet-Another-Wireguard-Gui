@@ -1,10 +1,14 @@
 #include "WireguardManagerBridge.h"
 #include "WireguardTypes.h"
+#include <QDBusConnection>
+#include <QDBusError>
+#include <QDBusMessage>
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingReply>
 #include <QFile>
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QTimer>
 #include <QVariantMap>
 
 WireguardManagerBridge::WireguardManagerBridge(
@@ -29,9 +33,25 @@ void WireguardManagerBridge::refreshProfiles()
                 w->deleteLater();
                 QDBusPendingReply<ProfileList> reply = *w;
                 if (reply.isError()) {
-                    emit errorOccurred(QString(), reply.error().message());
+                    const QDBusError::ErrorType type = reply.error().type();
+                    // Daemon may not be ready yet during autostart — retry silently
+                    if ((type == QDBusError::ServiceUnknown || type == QDBusError::NoReply)
+                            && m_startupRetries < MaxStartupRetries) {
+                        m_startupRetries++;
+                        QTimer::singleShot(2000, this, &WireguardManagerBridge::refreshProfiles);
+                        return;
+                    }
+                    m_startupRetries = 0;
+                    if (type == QDBusError::ServiceUnknown || type == QDBusError::NoReply) {
+                        m_daemonUnavailable = true;
+                        emit daemonUnavailable();
+                    } else {
+                        emit errorOccurred(QString(), reply.error().message());
+                    }
                     return;
                 }
+                m_startupRetries = 0;
+                m_daemonUnavailable = false;
                 QVariantList result;
                 for (const ProfileInfo &info : reply.value()) {
                     QVariantMap entry;
@@ -80,6 +100,72 @@ void WireguardManagerBridge::importProfile(const QUrl &fileUrl)
 void WireguardManagerBridge::deleteProfile(const QString &name)
 {
     m_proxy->DeleteProfile(name);
+}
+
+static QDBusMessage systemdMsg(const QString &method)
+{
+    return QDBusMessage::createMethodCall(
+        QStringLiteral("org.freedesktop.systemd1"),
+        QStringLiteral("/org/freedesktop/systemd1"),
+        QStringLiteral("org.freedesktop.systemd1.Manager"),
+        method);
+}
+
+void WireguardManagerBridge::enableAndStartDaemon()
+{
+    // setInteractiveAuthorizationAllowed(true) tells polkit to show an auth dialog
+    QDBusMessage enableMsg = systemdMsg(QStringLiteral("EnableUnitFiles"));
+    enableMsg << QStringList{QStringLiteral("yawg-daemon.service")} << false << false;
+    enableMsg.setInteractiveAuthorizationAllowed(true);
+
+    auto *enableWatcher = new QDBusPendingCallWatcher(
+        QDBusConnection::systemBus().asyncCall(enableMsg), this);
+
+    connect(enableWatcher, &QDBusPendingCallWatcher::finished, this,
+        [this](QDBusPendingCallWatcher *w) {
+            w->deleteLater();
+            if (w->isError()) {
+                emit errorOccurred(QString(),
+                    QStringLiteral("Failed to enable daemon: %1").arg(w->error().message()));
+                return;
+            }
+
+            QDBusMessage reloadMsg = systemdMsg(QStringLiteral("Reload"));
+            reloadMsg.setInteractiveAuthorizationAllowed(true);
+
+            auto *reloadWatcher = new QDBusPendingCallWatcher(
+                QDBusConnection::systemBus().asyncCall(reloadMsg), this);
+
+            connect(reloadWatcher, &QDBusPendingCallWatcher::finished, this,
+                [this](QDBusPendingCallWatcher *rw) {
+                    rw->deleteLater();
+                    if (rw->isError()) {
+                        emit errorOccurred(QString(),
+                            QStringLiteral("Failed to reload systemd: %1").arg(rw->error().message()));
+                        return;
+                    }
+
+                    QDBusMessage startMsg = systemdMsg(QStringLiteral("StartUnit"));
+                    startMsg << QStringLiteral("yawg-daemon.service") << QStringLiteral("replace");
+                    startMsg.setInteractiveAuthorizationAllowed(true);
+
+                    auto *startWatcher = new QDBusPendingCallWatcher(
+                        QDBusConnection::systemBus().asyncCall(startMsg), this);
+
+                    connect(startWatcher, &QDBusPendingCallWatcher::finished, this,
+                        [this](QDBusPendingCallWatcher *sw) {
+                            sw->deleteLater();
+                            if (sw->isError()) {
+                                emit errorOccurred(QString(),
+                                    QStringLiteral("Failed to start daemon: %1").arg(sw->error().message()));
+                                return;
+                            }
+                            m_startupRetries = 0;
+                            m_daemonUnavailable = false;
+                            QTimer::singleShot(1000, this, &WireguardManagerBridge::refreshProfiles);
+                        });
+                });
+        });
 }
 
 void WireguardManagerBridge::exportProfile(const QString &name, const QUrl &fileUrl)

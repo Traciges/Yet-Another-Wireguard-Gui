@@ -9,11 +9,13 @@ Kirigami.ApplicationWindow {
     title: "Yet Another Wireguard Gui"
     width: 450
     height: 800
+    visible: false
 
     property string selectedProfile: ""
     property var prevStats: ({})
     property real lastRefreshTime: 0
     property bool firstLoad: true
+    property bool daemonUnavailable: false
 
     Platform.FileDialog {
         id: importDialog
@@ -74,7 +76,12 @@ Kirigami.ApplicationWindow {
     Connections {
         target: wireguardManager
 
+        function onDaemonUnavailable() {
+            root.daemonUnavailable = true
+        }
+
         function onProfilesLoaded(profiles) {
+            root.daemonUnavailable = false
             const now = Date.now() / 1000.0;
             const dt = root.lastRefreshTime > 0 ? (now - root.lastRefreshTime) : 0;
             root.lastRefreshTime = now;
@@ -149,7 +156,12 @@ Kirigami.ApplicationWindow {
         }
     }
 
-    Component.onCompleted: wireguardManager.refreshProfiles()
+    Component.onCompleted: {
+        if (!startInTray)
+            root.show()
+        wireguardManager.refreshProfiles()
+    }
+
 
     pageStack.initialPage: Kirigami.Page {
         title: "Profiles"
@@ -235,7 +247,20 @@ Kirigami.ApplicationWindow {
 
             Kirigami.PlaceholderMessage {
                 anchors.centerIn: parent
-                visible: profileModel.count === 0
+                visible: root.daemonUnavailable
+                text: "WireGuard daemon is not running"
+                explanation: "The yawg-daemon service is disabled. Click below to enable and start it."
+                icon.name: "dialog-warning"
+                helpfulAction: Kirigami.Action {
+                    text: "Enable Daemon"
+                    icon.name: "system-run"
+                    onTriggered: wireguardManager.enableAndStartDaemon()
+                }
+            }
+
+            Kirigami.PlaceholderMessage {
+                anchors.centerIn: parent
+                visible: profileModel.count === 0 && !root.daemonUnavailable
                 text: "No WireGuard profiles found"
                 icon.name: "network-vpn"
             }

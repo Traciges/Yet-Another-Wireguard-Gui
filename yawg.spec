@@ -18,6 +18,7 @@ Requires:       qt6-qtdeclarative
 Requires:       kf6-kirigami
 Requires:       polkit
 Requires:       wireguard-tools
+Requires(post): systemd
 
 %description
 Yet Another WireGuard GUI is a KDE Plasma frontend for managing
@@ -41,12 +42,17 @@ ninja -C %{_builddir}/build
 
 %install
 DESTDIR=%{buildroot} ninja -C %{_builddir}/build install
+install -Dm644 %{_sourcedir}/packaging/50-yawg-daemon.preset \
+    %{buildroot}%{_presetdir}/50-yawg-daemon.preset
 
 # ── Post-install scriptlets ──────────────────────────────────────────────────
 
 %post
 systemctl daemon-reload
 %systemd_post yawg-daemon.service
+if [ $1 -eq 1 ]; then
+    systemctl start yawg-daemon.service || :
+fi
 
 %preun
 %systemd_preun yawg-daemon.service
@@ -64,5 +70,6 @@ systemctl daemon-reload
 /usr/share/polkit-1/rules.d/io.github.traciges.wireguard.rules
 /usr/share/polkit-1/actions/io.github.traciges.wireguard.policy
 /etc/systemd/system/yawg-daemon.service
+%{_presetdir}/50-yawg-daemon.preset
 /usr/share/applications/yawg-gui.desktop
 /usr/share/icons/hicolor/256x256/apps/yawg-gui.png

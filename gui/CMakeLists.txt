@@ -51,3 +51,9 @@ target_link_libraries(yawg-gui
     Qt6::LabsPlatform
     KF6::Kirigami
 )
+
+install(TARGETS yawg-gui DESTINATION /usr/local/bin)
+install(FILES yawg-gui.desktop DESTINATION /usr/share/applications/)
+install(FILES resources/app-icon.png
+    DESTINATION /usr/share/icons/hicolor/256x256/apps/
+    RENAME yawg-gui.png)

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Yet Another WireGuard GUI
+Comment=WireGuard VPN Manager for KDE Plasma
+Exec=yawg-gui
+Icon=yawg-gui
+Type=Application
+Categories=Network;Settings;
+Keywords=VPN;WireGuard;Network;
+StartupNotify=false

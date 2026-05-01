@@ -167,7 +167,7 @@ Kirigami.ApplicationWindow {
             Controls.Label {
                 text: "v" + Qt.application.version
                 color: Kirigami.Theme.disabledTextColor
-                rightPadding: Kirigami.Units.smallSpacing + Kirigami.Units.smallSpacing
+                rightPadding: 2 * Kirigami.Units.smallSpacing
                 topPadding: Kirigami.Units.smallSpacing
                 bottomPadding: Kirigami.Units.smallSpacing
             }

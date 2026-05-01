@@ -41,7 +41,7 @@ Yet Another WireGuard GUI fills that gap for KDE Plasma users. A privileged syst
 
 | Feature | Description |
 | --- | --- |
-| Profile management | List, import, export, and delete WireGuard configuration profiles |
+| Profile management | List, add, import, export, and delete WireGuard configuration profiles |
 | One-click connect/disconnect | Toggle any profile on or off directly from the UI |
 | Auto-connect on startup | Automatically connect a chosen profile when the daemon starts |
 | System tray | Minimize to tray; restore or quit from the tray menu |

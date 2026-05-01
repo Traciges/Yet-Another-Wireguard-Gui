@@ -6,7 +6,7 @@ import Qt.labs.platform as Platform
 
 Kirigami.ApplicationWindow {
     id: root
-    title: "Yet Another Wireguard Gui"
+    title: "Yet Another WireGuard Gui"
     width: 450
     height: 800
     visible: false
@@ -34,7 +34,7 @@ Kirigami.ApplicationWindow {
 
     AddProfileDialog {
         id: addDialog
-        onProfileAccepted: (config) => wireguardManager.addProfile(config)
+        onProfileAccepted: config => wireguardManager.addProfile(config)
     }
 
     DeleteProfileDialog {
@@ -46,7 +46,7 @@ Kirigami.ApplicationWindow {
     RenameProfileDialog {
         id: renameDialog
         profileName: root.selectedProfile
-        onRenameAccepted: (newName) => wireguardManager.renameProfile(root.selectedProfile, newName)
+        onRenameAccepted: newName => wireguardManager.renameProfile(root.selectedProfile, newName)
     }
 
     SettingsDialog {
@@ -83,11 +83,11 @@ Kirigami.ApplicationWindow {
         target: wireguardManager
 
         function onDaemonUnavailable() {
-            root.daemonUnavailable = true
+            root.daemonUnavailable = true;
         }
 
         function onProfilesLoaded(profiles) {
-            root.daemonUnavailable = false
+            root.daemonUnavailable = false;
             const now = Date.now() / 1000.0;
             const dt = root.lastRefreshTime > 0 ? (now - root.lastRefreshTime) : 0;
             root.lastRefreshTime = now;
@@ -174,10 +174,9 @@ Kirigami.ApplicationWindow {
 
     Component.onCompleted: {
         if (!startInTray)
-            root.show()
-        wireguardManager.refreshProfiles()
+            root.show();
+        wireguardManager.refreshProfiles();
     }
-
 
     pageStack.initialPage: Kirigami.Page {
         title: "Profiles"
@@ -198,7 +197,9 @@ Kirigami.ApplicationWindow {
                     sourceSize.height: 16
                 }
                 onClicked: Qt.openUrlExternally("https://github.com/Traciges")
-                HoverHandler { cursorShape: Qt.PointingHandCursor }
+                HoverHandler {
+                    cursorShape: Qt.PointingHandCursor
+                }
             }
 
             Controls.Label {
@@ -209,7 +210,9 @@ Kirigami.ApplicationWindow {
                 bottomPadding: Kirigami.Units.smallSpacing
             }
 
-            Item { Layout.fillWidth: true }
+            Item {
+                Layout.fillWidth: true
+            }
 
             Controls.Label {
                 text: "v" + Qt.application.version
@@ -300,8 +303,8 @@ Kirigami.ApplicationWindow {
                     onToggleRequested: state => wireguardManager.toggleProfile(model.name, state)
                     onSelectRequested: root.selectedProfile = (model.name === root.selectedProfile ? "" : model.name)
                     onRenameRequested: {
-                        root.selectedProfile = model.name
-                        renameDialog.open()
+                        root.selectedProfile = model.name;
+                        renameDialog.open();
                     }
                 }
             }

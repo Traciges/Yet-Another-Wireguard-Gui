@@ -49,7 +49,7 @@ void SettingsManager::setAutoConnectProfile(const QString &profile)
     if (autoConnectProfile() == profile)
         return;
 
-    // Empty string means "no auto-connect" — always valid
+    // Empty string means "no auto-connect" - always valid
     if (!profile.isEmpty() && !s_profileNameRegex.match(profile).hasMatch())
         return;
 

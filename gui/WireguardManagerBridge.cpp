@@ -38,7 +38,7 @@ void WireguardManagerBridge::refreshProfiles()
                 QDBusPendingReply<ProfileList> reply = *w;
                 if (reply.isError()) {
                     const QDBusError::ErrorType type = reply.error().type();
-                    // Daemon may not be ready yet during autostart — retry silently
+                    // Daemon may not be ready yet during autostart - retry silently
                     if ((type == QDBusError::ServiceUnknown || type == QDBusError::NoReply)
                             && m_startupRetries < MaxStartupRetries) {
                         m_startupRetries++;

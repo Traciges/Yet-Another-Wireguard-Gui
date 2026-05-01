@@ -249,7 +249,7 @@ Kirigami.ApplicationWindow {
                 anchors.centerIn: parent
                 visible: root.daemonUnavailable
                 text: "WireGuard daemon is not running"
-                explanation: "The yawg-daemon service is disabled. Click below to enable and start it."
+                explanation: "The yawg-daemon service is disabled.\nClick below to enable and start it."
                 icon.name: "dialog-warning"
                 helpfulAction: Kirigami.Action {
                     text: "Enable Daemon"

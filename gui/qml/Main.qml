@@ -34,7 +34,7 @@ Kirigami.ApplicationWindow {
 
     AddProfileDialog {
         id: addDialog
-        onProfileAccepted: (name, privKey, addr, dns, mtu, pubKey, psk, allowedIPs, endpoint) => wireguardManager.addProfile(name, privKey, addr, dns, mtu, pubKey, psk, allowedIPs, endpoint)
+        onProfileAccepted: (config) => wireguardManager.addProfile(config)
     }
 
     DeleteProfileDialog {

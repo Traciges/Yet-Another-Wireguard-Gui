@@ -1,11 +1,12 @@
 #include "SettingsManager.h"
+#include "WireguardTypes.h"
 #include <QDir>
 #include <QFile>
+#include <QRegularExpression>
 #include <QStandardPaths>
 #include <QTextStream>
-#include <QRegularExpression>
 
-static const QRegularExpression s_profileNameRegex(QStringLiteral("^[a-zA-Z0-9_=+.\\-]{1,15}$"));
+static const QRegularExpression s_profileNameRegex(ProfileNamePattern);
 
 SettingsManager::SettingsManager(QObject *parent)
     : QObject(parent)

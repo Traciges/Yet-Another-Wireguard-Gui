@@ -7,13 +7,10 @@
   <vendor_url>https://github.com/Traciges/Yet-Another-Wireguard-Gui</vendor_url>
 
   <action id="io.github.traciges.wireguard.toggle">
-    <description>WireGuard-Verbindung umschalten</description>
+    <description>Toggle WireGuard connection</description>
     <description xml:lang="de">WireGuard-Verbindung umschalten</description>
-    <message
-    >Authentifizierung erforderlich, um eine WireGuard-Verbindung umzuschalten.</message>
-    <message
-      xml:lang="de"
-    >Authentifizierung erforderlich, um eine WireGuard-Verbindung umzuschalten.</message>
+    <message>Authentication required to toggle a WireGuard connection.</message>
+    <message xml:lang="de">Authentifizierung erforderlich, um eine WireGuard-Verbindung umzuschalten.</message>
     <icon_name>network-vpn</icon_name>
     <defaults>
       <allow_any>auth_admin</allow_any>
@@ -23,9 +20,9 @@
   </action>
 
   <action id="io.github.traciges.wireguard.delete">
-    <description>WireGuard-Konfiguration löschen</description>
+    <description>Delete WireGuard configuration</description>
     <description xml:lang="de">WireGuard-Konfiguration löschen</description>
-    <message>Authentifizierung erforderlich, um eine WireGuard-Konfiguration zu löschen.</message>
+    <message>Authentication required to delete a WireGuard configuration.</message>
     <message xml:lang="de">Authentifizierung erforderlich, um eine WireGuard-Konfiguration zu löschen.</message>
     <icon_name>list-remove</icon_name>
     <defaults>
@@ -36,9 +33,9 @@
   </action>
 
   <action id="io.github.traciges.wireguard.export">
-    <description>WireGuard configuration exportieren</description>
+    <description>Export WireGuard configuration</description>
     <description xml:lang="de">WireGuard-Konfiguration exportieren</description>
-    <message>Authentifizierung erforderlich, um eine WireGuard-Konfiguration zu exportieren.</message>
+    <message>Authentication required to export a WireGuard configuration.</message>
     <message xml:lang="de">Authentifizierung erforderlich, um eine WireGuard-Konfiguration zu exportieren.</message>
     <icon_name>document-export</icon_name>
     <defaults>
@@ -49,9 +46,9 @@
   </action>
 
   <action id="io.github.traciges.wireguard.import">
-    <description>WireGuard-Konfiguration importieren</description>
+    <description>Import WireGuard configuration</description>
     <description xml:lang="de">WireGuard-Konfiguration importieren</description>
-    <message>Authentifizierung erforderlich, um eine WireGuard-Konfiguration zu importieren.</message>
+    <message>Authentication required to import a WireGuard configuration.</message>
     <message xml:lang="de">Authentifizierung erforderlich, um eine WireGuard-Konfiguration zu importieren.</message>
     <icon_name>document-import</icon_name>
     <defaults>
@@ -62,9 +59,9 @@
   </action>
 
   <action id="io.github.traciges.wireguard.rename">
-    <description>WireGuard-Konfiguration umbenennen</description>
+    <description>Rename WireGuard configuration</description>
     <description xml:lang="de">WireGuard-Konfiguration umbenennen</description>
-    <message>Authentifizierung erforderlich, um eine WireGuard-Konfiguration umzubenennen.</message>
+    <message>Authentication required to rename a WireGuard configuration.</message>
     <message xml:lang="de">Authentifizierung erforderlich, um eine WireGuard-Konfiguration umzubenennen.</message>
     <icon_name>edit-rename</icon_name>
     <defaults>

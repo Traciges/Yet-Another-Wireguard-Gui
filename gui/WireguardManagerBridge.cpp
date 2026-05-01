@@ -11,6 +11,8 @@
 #include <QTimer>
 #include <QVariantMap>
 
+static const QRegularExpression s_nameRegex(ProfileNamePattern);
+
 WireguardManagerBridge::WireguardManagerBridge(
     IoGithubTracigesWireguardManagerInterface *proxy, QObject *parent)
     : QObject(parent), m_proxy(proxy)
@@ -40,7 +42,7 @@ void WireguardManagerBridge::refreshProfiles()
                     if ((type == QDBusError::ServiceUnknown || type == QDBusError::NoReply)
                             && m_startupRetries < MaxStartupRetries) {
                         m_startupRetries++;
-                        QTimer::singleShot(2000, this, &WireguardManagerBridge::refreshProfiles);
+                        QTimer::singleShot(StartupRetryDelayMs, this, &WireguardManagerBridge::refreshProfiles);
                         return;
                     }
                     m_startupRetries = 0;
@@ -77,8 +79,7 @@ void WireguardManagerBridge::importProfile(const QUrl &fileUrl)
     const QString path = fileUrl.toLocalFile();
     const QString name = QFileInfo(path).completeBaseName();
 
-    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
-    if (!nameRegex.match(name).hasMatch()) {
+    if (!s_nameRegex.match(name).hasMatch()) {
         emit errorOccurred(QString(), QStringLiteral("Invalid filename: \"%1\"").arg(name));
         return;
     }
@@ -90,8 +91,8 @@ void WireguardManagerBridge::importProfile(const QUrl &fileUrl)
         return;
     }
 
-    const QByteArray data = file.read(65537);
-    if (data.size() > 65536) {
+    const QByteArray data = file.read(MaxConfigSizeBytes + 1);
+    if (data.size() > MaxConfigSizeBytes) {
         emit errorOccurred(QString(), QStringLiteral("Configuration file too large (max. 64 KB)"));
         return;
     }
@@ -106,12 +107,11 @@ void WireguardManagerBridge::deleteProfile(const QString &name)
 
 void WireguardManagerBridge::renameProfile(const QString &oldName, const QString &newName)
 {
-    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
-    if (!nameRegex.match(oldName).hasMatch()) {
+    if (!s_nameRegex.match(oldName).hasMatch()) {
         emit errorOccurred(oldName, QStringLiteral("Invalid profile name: \"%1\"").arg(oldName));
         return;
     }
-    if (!nameRegex.match(newName).hasMatch()) {
+    if (!s_nameRegex.match(newName).hasMatch()) {
         emit errorOccurred(oldName, QStringLiteral("Invalid new profile name: \"%1\"").arg(newName));
         return;
     }
@@ -212,37 +212,38 @@ void WireguardManagerBridge::exportProfile(const QString &name, const QUrl &file
             });
 }
 
-void WireguardManagerBridge::addProfile(
-    const QString &name, const QString &privateKey, const QString &address,
-    const QString &dns, const QString &mtu, const QString &publicKey,
-    const QString &presharedKey, const QString &allowedIPs, const QString &endpoint)
+void WireguardManagerBridge::addProfile(const QVariantMap &config)
 {
-    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
-    if (!nameRegex.match(name).hasMatch()) {
+    // Expected keys: name, privateKey, address, dns, mtu, publicKey, presharedKey, allowedIPs, endpoint
+    const QString name = config.value(QStringLiteral("name")).toString();
+    if (!s_nameRegex.match(name).hasMatch()) {
         emit errorOccurred(QString(), QStringLiteral("Invalid profile name: \"%1\"").arg(name));
         return;
     }
 
     // Strip embedded newlines from all values to prevent config file corruption
-    auto clean = [](const QString &s) {
-        return QString(s).remove(u'\n').remove(u'\r');
+    auto clean = [&config](const QString &key) {
+        return config.value(key).toString().remove(u'\n').remove(u'\r');
     };
 
     QString contents = QStringLiteral("[Interface]\n");
-    contents += QStringLiteral("PrivateKey = %1\n").arg(clean(privateKey));
-    contents += QStringLiteral("Address = %1\n").arg(clean(address));
+    contents += QStringLiteral("PrivateKey = %1\n").arg(clean(QStringLiteral("privateKey")));
+    contents += QStringLiteral("Address = %1\n").arg(clean(QStringLiteral("address")));
+    const QString dns = clean(QStringLiteral("dns"));
     if (!dns.isEmpty())
-        contents += QStringLiteral("DNS = %1\n").arg(clean(dns));
+        contents += QStringLiteral("DNS = %1\n").arg(dns);
+    const QString mtu = clean(QStringLiteral("mtu"));
     if (!mtu.isEmpty())
-        contents += QStringLiteral("MTU = %1\n").arg(clean(mtu));
+        contents += QStringLiteral("MTU = %1\n").arg(mtu);
     contents += QStringLiteral("\n[Peer]\n");
-    contents += QStringLiteral("PublicKey = %1\n").arg(clean(publicKey));
+    contents += QStringLiteral("PublicKey = %1\n").arg(clean(QStringLiteral("publicKey")));
+    const QString presharedKey = clean(QStringLiteral("presharedKey"));
     if (!presharedKey.isEmpty())
-        contents += QStringLiteral("PresharedKey = %1\n").arg(clean(presharedKey));
-    contents += QStringLiteral("AllowedIPs = %1\n").arg(clean(allowedIPs));
-    contents += QStringLiteral("Endpoint = %1\n").arg(clean(endpoint));
+        contents += QStringLiteral("PresharedKey = %1\n").arg(presharedKey);
+    contents += QStringLiteral("AllowedIPs = %1\n").arg(clean(QStringLiteral("allowedIPs")));
+    contents += QStringLiteral("Endpoint = %1\n").arg(clean(QStringLiteral("endpoint")));
 
-    if (contents.toUtf8().size() > 65536) {
+    if (contents.toUtf8().size() > MaxConfigSizeBytes) {
         emit errorOccurred(QString(), QStringLiteral("Configuration too large (max. 64 KB)"));
         return;
     }

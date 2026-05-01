@@ -18,11 +18,11 @@ int main(int argc, char *argv[])
 
     QDBusConnection bus = QDBusConnection::systemBus();
 
-    if (!bus.registerObject(QStringLiteral("/io/github/traciges/WireguardManager"), &manager)) {
+    if (!bus.registerObject(DBusObjectPath, &manager)) {
         qCritical() << "D-Bus object registration failed:" << bus.lastError().message();
         return 1;
     }
-    if (!bus.registerService(QStringLiteral("io.github.traciges.WireguardManager"))) {
+    if (!bus.registerService(DBusServiceName)) {
         qCritical() << "D-Bus service registration failed:" << bus.lastError().message();
         return 1;
     }

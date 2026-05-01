@@ -14,6 +14,8 @@
 #include <PolkitQt1/Authority>
 #include <PolkitQt1/Subject>
 
+static const QRegularExpression s_nameRegex(ProfileNamePattern);
+
 WireguardManager::WireguardManager(QObject *parent)
     : QObject(parent)
 {
@@ -48,9 +50,7 @@ ProfileList WireguardManager::ListProfiles()
 
 void WireguardManager::ToggleProfile(const QString &name, bool targetState)
 {
-    // Path Traversal Guard - WireGuard interface names: max 15 chars, IFNAMSIZ limit
-    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
-    if (!nameRegex.match(name).hasMatch()) {
+    if (!s_nameRegex.match(name).hasMatch()) {
         sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid profile name"));
         return;
     }
@@ -115,13 +115,12 @@ void WireguardManager::ToggleProfile(const QString &name, bool targetState)
 
 void WireguardManager::ImportProfile(const QString &name, const QString &contents)
 {
-    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
-    if (!nameRegex.match(name).hasMatch()) {
+    if (!s_nameRegex.match(name).hasMatch()) {
         sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid profile name"));
         return;
     }
 
-    if (contents.toUtf8().size() > 65536) {
+    if (contents.toUtf8().size() > MaxConfigSizeBytes) {
         sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Configuration file too large"));
         return;
     }
@@ -182,8 +181,7 @@ void WireguardManager::ImportProfile(const QString &name, const QString &content
 
 QString WireguardManager::ExportProfile(const QString &name)
 {
-    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
-    if (!nameRegex.match(name).hasMatch()) {
+    if (!s_nameRegex.match(name).hasMatch()) {
         sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid profile name"));
         return {};
     }
@@ -235,8 +233,7 @@ QString WireguardManager::ExportProfile(const QString &name)
 
 void WireguardManager::DeleteProfile(const QString &name)
 {
-    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
-    if (!nameRegex.match(name).hasMatch()) {
+    if (!s_nameRegex.match(name).hasMatch()) {
         sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid profile name"));
         return;
     }
@@ -292,12 +289,11 @@ void WireguardManager::DeleteProfile(const QString &name)
 
 void WireguardManager::RenameProfile(const QString &oldName, const QString &newName)
 {
-    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
-    if (!nameRegex.match(oldName).hasMatch()) {
+    if (!s_nameRegex.match(oldName).hasMatch()) {
         sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid source profile name"));
         return;
     }
-    if (!nameRegex.match(newName).hasMatch()) {
+    if (!s_nameRegex.match(newName).hasMatch()) {
         sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid new profile name"));
         return;
     }

@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QVariantList>
+#include <QVariantMap>
 #include "WireguardManagerProxy.h"
 
 class WireguardManagerBridge : public QObject
@@ -18,9 +19,7 @@ public slots:
     void deleteProfile(const QString &name);
     void renameProfile(const QString &oldName, const QString &newName);
     void exportProfile(const QString &name, const QUrl &fileUrl);
-    void addProfile(const QString &name, const QString &privateKey, const QString &address,
-                    const QString &dns, const QString &mtu, const QString &publicKey,
-                    const QString &presharedKey, const QString &allowedIPs, const QString &endpoint);
+    void addProfile(const QVariantMap &config);
     void enableAndStartDaemon();
 
 signals:
@@ -38,4 +37,5 @@ private:
     int m_startupRetries = 0;
     bool m_daemonUnavailable = false;
     static constexpr int MaxStartupRetries = 5;
+    static constexpr int StartupRetryDelayMs = 2000;
 };

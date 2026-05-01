@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationName(QStringLiteral("yet-another-wireguard-gui"));
-    app.setApplicationVersion(QStringLiteral("1.0.0"));
+    app.setApplicationVersion(QStringLiteral("0.1.0"));
     app.setOrganizationName(QStringLiteral("io.github.traciges"));
     app.setWindowIcon(QIcon(QStringLiteral(":/app-icon.png")));
 
@@ -27,8 +27,8 @@ int main(int argc, char *argv[])
     qDBusRegisterMetaType<ProfileList>();
 
     IoGithubTracigesWireguardManagerInterface proxy(
-        QStringLiteral("io.github.traciges.WireguardManager"),
-        QStringLiteral("/io/github/traciges/WireguardManager"),
+        DBusServiceName,
+        DBusObjectPath,
         QDBusConnection::systemBus()
     );
     WireguardManagerBridge bridge(&proxy);

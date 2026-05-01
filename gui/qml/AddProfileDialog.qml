@@ -9,11 +9,7 @@ Kirigami.Dialog {
     preferredWidth: Kirigami.Units.gridUnit * 32
     standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
 
-    signal profileAccepted(
-        string name, string privateKey, string address,
-        string dns, string mtu, string publicKey,
-        string presharedKey, string allowedIPs, string endpoint
-    )
+    signal profileAccepted(var config)
 
     property bool canAccept:
         nameField.text.trim() !== "" &&
@@ -42,11 +38,17 @@ Kirigami.Dialog {
         nameField.forceActiveFocus();
     }
 
-    onAccepted: profileAccepted(
-        nameField.text.trim(), privKeyField.text.trim(), addrField.text.trim(),
-        dnsField.text.trim(), mtuField.text.trim(), pubKeyField.text.trim(),
-        pskField.text.trim(), allowedField.text.trim(), endpointField.text.trim()
-    )
+    onAccepted: profileAccepted({
+        name:        nameField.text.trim(),
+        privateKey:  privKeyField.text.trim(),
+        address:     addrField.text.trim(),
+        dns:         dnsField.text.trim(),
+        mtu:         mtuField.text.trim(),
+        publicKey:   pubKeyField.text.trim(),
+        presharedKey: pskField.text.trim(),
+        allowedIPs:  allowedField.text.trim(),
+        endpoint:    endpointField.text.trim()
+    })
 
     ColumnLayout {
         spacing: Kirigami.Units.largeSpacing

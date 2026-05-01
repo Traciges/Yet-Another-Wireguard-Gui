@@ -10,6 +10,7 @@ set_source_files_properties(${DBUS_XML}
 set(GUI_SOURCES
     main.cpp
     WireguardManagerBridge.cpp
+    SettingsManager.cpp
 )
 
 qt_add_dbus_interface(GUI_SOURCES ${DBUS_XML} WireguardManagerProxy)
@@ -24,6 +25,7 @@ qt_add_qml_module(yawg-gui
         qml/AddProfileDialog.qml
         qml/DeleteProfileDialog.qml
         qml/ProfileCard.qml
+        qml/SettingsDialog.qml
 )
 
 qt_add_resources(yawg-gui "appResources"

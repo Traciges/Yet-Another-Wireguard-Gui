@@ -7,12 +7,13 @@ import Qt.labs.platform as Platform
 Kirigami.ApplicationWindow {
     id: root
     title: "Yet Another Wireguard Gui"
-    width: 600
+    width: 450
     height: 800
 
     property string selectedProfile: ""
     property var prevStats: ({})
     property real lastRefreshTime: 0
+    property bool firstLoad: true
 
     Platform.FileDialog {
         id: importDialog
@@ -38,6 +39,11 @@ Kirigami.ApplicationWindow {
         id: deleteDialog
         profileName: root.selectedProfile
         onDeleteAccepted: wireguardManager.deleteProfile(root.selectedProfile)
+    }
+
+    SettingsDialog {
+        id: settingsDialog
+        profileModel: profileModel
     }
 
     Platform.SystemTrayIcon {
@@ -72,6 +78,19 @@ Kirigami.ApplicationWindow {
             const now = Date.now() / 1000.0;
             const dt = root.lastRefreshTime > 0 ? (now - root.lastRefreshTime) : 0;
             root.lastRefreshTime = now;
+
+            if (root.firstLoad) {
+                root.firstLoad = false;
+                const autoProfile = settingsManager.autoConnectProfile;
+                if (autoProfile !== "") {
+                    for (let j = 0; j < profiles.length; j++) {
+                        if (profiles[j].name === autoProfile && profiles[j].status === "inactive") {
+                            wireguardManager.toggleProfile(autoProfile, true);
+                            break;
+                        }
+                    }
+                }
+            }
 
             const savedSelection = root.selectedProfile;
             profileModel.clear();
@@ -174,6 +193,11 @@ Kirigami.ApplicationWindow {
         }
 
         actions: [
+            Kirigami.Action {
+                text: "Settings"
+                icon.name: "configure"
+                onTriggered: settingsDialog.open()
+            },
             Kirigami.Action {
                 text: "Add"
                 icon.name: "list-add"

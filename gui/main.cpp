@@ -7,6 +7,7 @@
 #include "WireguardTypes.h"
 #include "WireguardManagerProxy.h"
 #include "WireguardManagerBridge.h"
+#include "SettingsManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -25,10 +26,14 @@ int main(int argc, char *argv[])
         QDBusConnection::systemBus()
     );
     WireguardManagerBridge bridge(&proxy);
+    SettingsManager settingsManager;
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(
         QStringLiteral("wireguardManager"), &bridge
+    );
+    engine.rootContext()->setContextProperty(
+        QStringLiteral("settingsManager"), &settingsManager
     );
 
     engine.load(QUrl(QStringLiteral("qrc:/YetAnotherWireguardGui/qml/Main.qml")));

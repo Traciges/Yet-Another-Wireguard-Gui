@@ -48,7 +48,7 @@ ProfileList WireguardManager::ListProfiles()
 
 void WireguardManager::ToggleProfile(const QString &name, bool targetState)
 {
-    // Path Traversal Guard – WireGuard interface names: max 15 chars, IFNAMSIZ limit
+    // Path Traversal Guard - WireGuard interface names: max 15 chars, IFNAMSIZ limit
     static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
     if (!nameRegex.match(name).hasMatch()) {
         sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid profile name"));

@@ -1,5 +1,5 @@
 [Unit]
-Description=Yet Another WireGuard Gui – System Daemon
+Description=Yet Another WireGuard Gui - System Daemon
 After=dbus.service network.target
 Requires=dbus.service
 

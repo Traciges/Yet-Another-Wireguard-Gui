@@ -43,6 +43,12 @@ Kirigami.ApplicationWindow {
         onDeleteAccepted: wireguardManager.deleteProfile(root.selectedProfile)
     }
 
+    RenameProfileDialog {
+        id: renameDialog
+        profileName: root.selectedProfile
+        onRenameAccepted: (newName) => wireguardManager.renameProfile(root.selectedProfile, newName)
+    }
+
     SettingsDialog {
         id: settingsDialog
         profileModel: profileModel
@@ -145,6 +151,16 @@ Kirigami.ApplicationWindow {
         function onProfileDeleted(name) {
             wireguardManager.refreshProfiles();
             root.showPassiveNotification("Profile \"" + name + "\" deleted.");
+        }
+
+        function onProfileRenamed(oldName, newName) {
+            if (root.selectedProfile === oldName)
+                root.selectedProfile = newName;
+            if (settingsManager.autoConnectProfile === oldName)
+                settingsManager.setAutoConnectProfile(newName);
+            delete root.prevStats[oldName];
+            wireguardManager.refreshProfiles();
+            root.showPassiveNotification("Profile \"" + oldName + "\" renamed to \"" + newName + "\".");
         }
 
         function onProfileExported(name) {
@@ -283,6 +299,10 @@ Kirigami.ApplicationWindow {
                     isSelected: model.name === root.selectedProfile
                     onToggleRequested: state => wireguardManager.toggleProfile(model.name, state)
                     onSelectRequested: root.selectedProfile = (model.name === root.selectedProfile ? "" : model.name)
+                    onRenameRequested: {
+                        root.selectedProfile = model.name
+                        renameDialog.open()
+                    }
                 }
             }
         }

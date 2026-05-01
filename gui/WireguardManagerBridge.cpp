@@ -21,6 +21,8 @@ WireguardManagerBridge::WireguardManagerBridge(
             this, &WireguardManagerBridge::profileImported);
     connect(m_proxy, &IoGithubTracigesWireguardManagerInterface::ProfileDeleted,
             this, &WireguardManagerBridge::profileDeleted);
+    connect(m_proxy, &IoGithubTracigesWireguardManagerInterface::ProfileRenamed,
+            this, &WireguardManagerBridge::profileRenamed);
     connect(m_proxy, &IoGithubTracigesWireguardManagerInterface::ErrorOccurred,
             this, &WireguardManagerBridge::errorOccurred);
 }
@@ -100,6 +102,22 @@ void WireguardManagerBridge::importProfile(const QUrl &fileUrl)
 void WireguardManagerBridge::deleteProfile(const QString &name)
 {
     m_proxy->DeleteProfile(name);
+}
+
+void WireguardManagerBridge::renameProfile(const QString &oldName, const QString &newName)
+{
+    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
+    if (!nameRegex.match(oldName).hasMatch()) {
+        emit errorOccurred(oldName, QStringLiteral("Invalid profile name: \"%1\"").arg(oldName));
+        return;
+    }
+    if (!nameRegex.match(newName).hasMatch()) {
+        emit errorOccurred(oldName, QStringLiteral("Invalid new profile name: \"%1\"").arg(newName));
+        return;
+    }
+    if (oldName == newName)
+        return;
+    m_proxy->RenameProfile(oldName, newName);
 }
 
 static QDBusMessage systemdMsg(const QString &method)

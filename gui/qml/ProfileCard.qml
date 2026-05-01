@@ -14,6 +14,7 @@ Kirigami.AbstractCard {
 
     signal toggleRequested(bool targetState)
     signal selectRequested()
+    signal renameRequested()
 
     highlighted: card.isSelected
 
@@ -85,6 +86,17 @@ Kirigami.AbstractCard {
             }
         }
 
+        Controls.ToolButton {
+            icon.name: "edit-rename"
+            opacity: (cardHoverHandler.hovered && card.status !== "active") ? 1.0 : 0.0
+            visible: card.status !== "active"
+            Behavior on opacity { NumberAnimation { duration: 120 } }
+            Controls.ToolTip.visible: hovered
+            Controls.ToolTip.text: "Rename"
+            Controls.ToolTip.delay: 500
+            onClicked: card.renameRequested()
+        }
+
         Controls.Switch {
             checked: card.status === "active"
             onToggled: card.toggleRequested(checked)
@@ -92,6 +104,7 @@ Kirigami.AbstractCard {
     }
 
     HoverHandler {
+        id: cardHoverHandler
         cursorShape: Qt.PointingHandCursor
     }
 

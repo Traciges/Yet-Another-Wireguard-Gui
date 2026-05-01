@@ -24,6 +24,7 @@ qt_add_qml_module(yawg-gui
         qml/Main.qml
         qml/AddProfileDialog.qml
         qml/DeleteProfileDialog.qml
+        qml/RenameProfileDialog.qml
         qml/ProfileCard.qml
         qml/SettingsDialog.qml
 )

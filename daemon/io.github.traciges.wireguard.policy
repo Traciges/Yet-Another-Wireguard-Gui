@@ -60,4 +60,17 @@
       <allow_active>auth_admin_keep</allow_active>
     </defaults>
   </action>
+
+  <action id="io.github.traciges.wireguard.rename">
+    <description>WireGuard-Konfiguration umbenennen</description>
+    <description xml:lang="de">WireGuard-Konfiguration umbenennen</description>
+    <message>Authentifizierung erforderlich, um eine WireGuard-Konfiguration umzubenennen.</message>
+    <message xml:lang="de">Authentifizierung erforderlich, um eine WireGuard-Konfiguration umzubenennen.</message>
+    <icon_name>edit-rename</icon_name>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
 </policyconfig>

@@ -289,3 +289,69 @@ void WireguardManager::DeleteProfile(const QString &name)
         subject,
         PolkitQt1::Authority::AllowUserInteraction);
 }
+
+void WireguardManager::RenameProfile(const QString &oldName, const QString &newName)
+{
+    static const QRegularExpression nameRegex(QStringLiteral("^[a-zA-Z0-9_=+.-]{1,15}$"));
+    if (!nameRegex.match(oldName).hasMatch()) {
+        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid source profile name"));
+        return;
+    }
+    if (!nameRegex.match(newName).hasMatch()) {
+        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Invalid new profile name"));
+        return;
+    }
+    if (oldName == newName) {
+        sendErrorReply(QDBusError::InvalidArgs, QStringLiteral("Names are identical"));
+        return;
+    }
+    if (QNetworkInterface::interfaceFromName(oldName).isValid()) {
+        sendErrorReply(QDBusError::InvalidArgs,
+                       QStringLiteral("Profile \"%1\" is active - please disconnect first").arg(oldName));
+        return;
+    }
+    const QString srcPath = QStringLiteral("/etc/wireguard/%1.conf").arg(oldName);
+    if (!QFileInfo::exists(srcPath)) {
+        sendErrorReply(QDBusError::InvalidArgs,
+                       QStringLiteral("Profile \"%1\" not found").arg(oldName));
+        return;
+    }
+    const QString dstPath = QStringLiteral("/etc/wireguard/%1.conf").arg(newName);
+    if (QFileInfo::exists(dstPath)) {
+        sendErrorReply(QDBusError::InvalidArgs,
+                       QStringLiteral("Profile \"%1\" already exists").arg(newName));
+        return;
+    }
+
+    setDelayedReply(true);
+    const QDBusMessage msg = message();
+    QDBusConnection conn = connection();
+
+    auto *auth = PolkitQt1::Authority::instance();
+    const auto subject = PolkitQt1::SystemBusNameSubject(msg.service());
+
+    connect(auth, &PolkitQt1::Authority::checkAuthorizationFinished,
+            this, [this, oldName, newName, srcPath, dstPath, msg, conn]
+                  (PolkitQt1::Authority::Result result) mutable {
+
+        if (result != PolkitQt1::Authority::Yes) {
+            conn.send(msg.createErrorReply(QDBusError::AccessDenied,
+                                           QStringLiteral("Polkit: access denied")));
+            return;
+        }
+        if (!QFile::rename(srcPath, dstPath)) {
+            conn.send(msg.createErrorReply(QDBusError::Failed,
+                                           QStringLiteral("Could not rename file")));
+            return;
+        }
+        qInfo() << "Renamed WireGuard profile:" << oldName << "->" << newName;
+        conn.send(msg.createReply());
+        emit ProfileRenamed(oldName, newName);
+
+    }, Qt::SingleShotConnection);
+
+    auth->checkAuthorization(
+        QStringLiteral("io.github.traciges.wireguard.rename"),
+        subject,
+        PolkitQt1::Authority::AllowUserInteraction);
+}

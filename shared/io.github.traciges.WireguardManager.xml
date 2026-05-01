@@ -21,6 +21,11 @@
       <arg name="name" type="s" direction="in"/>
     </method>
 
+    <method name="RenameProfile">
+      <arg name="oldName" type="s" direction="in"/>
+      <arg name="newName" type="s" direction="in"/>
+    </method>
+
     <method name="ExportProfile">
       <arg name="name"     type="s" direction="in"/>
       <arg name="contents" type="s" direction="out"/>
@@ -32,6 +37,11 @@
 
     <signal name="ProfileDeleted">
       <arg name="name" type="s"/>
+    </signal>
+
+    <signal name="ProfileRenamed">
+      <arg name="oldName" type="s"/>
+      <arg name="newName" type="s"/>
     </signal>
 
     <signal name="ProfileStatusChanged">

@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         QStringLiteral("wireguardManager"), &bridge
     );
 
-    engine.loadFromModule("YetAnotherWireguardGui", "Main");
+    engine.load(QUrl(QStringLiteral("qrc:/YetAnotherWireguardGui/qml/Main.qml")));
 
     if (engine.rootObjects().isEmpty()) {
         return 1;

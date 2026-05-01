@@ -24,10 +24,15 @@ Yet Another WireGuard GUI is a KDE Plasma frontend for managing
 WireGuard VPN connections. Uses a privileged daemon with D-Bus and
 PolicyKit for secure privilege separation.
 
+# ── Prep ─────────────────────────────────────────────────────────────────────
+
+%prep
+cp %{_sourcedir}/LICENSE .
+
 # ── Build ────────────────────────────────────────────────────────────────────
 
 %build
-cmake -S %{_sourcedir}/.. -B %{_builddir}/build \
+cmake -S %{_sourcedir} -B %{_builddir}/build \
     -DCMAKE_BUILD_TYPE=Release \
     -G Ninja
 ninja -C %{_builddir}/build

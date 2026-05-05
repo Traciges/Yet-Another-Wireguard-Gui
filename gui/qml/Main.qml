@@ -59,6 +59,13 @@ Kirigami.ApplicationWindow {
         icon.source: "qrc:/app-icon.png"
         tooltip: "Yet Another Wireguard Gui"
         onActivated: root.visible ? root.hide() : root.show()
+
+        menu: Platform.Menu {
+            Platform.MenuItem {
+                text: "Quit"
+                onTriggered: Qt.quit()
+            }
+        }
     }
 
     ListModel {

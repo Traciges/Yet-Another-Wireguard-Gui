@@ -27,6 +27,21 @@ WireguardManagerBridge::WireguardManagerBridge(
             this, &WireguardManagerBridge::profileRenamed);
     connect(m_proxy, &IoGithubTracigesWireguardManagerInterface::ErrorOccurred,
             this, &WireguardManagerBridge::errorOccurred);
+
+    // Calls guarded by polkit stay pending while the auth dialog is open -
+    // the default 25 s D-Bus timeout is not enough to type a password
+    m_proxy->setTimeout(PolkitCallTimeoutMs);
+}
+
+void WireguardManagerBridge::watchCall(const QDBusPendingCall &call, const QString &profileName)
+{
+    auto *watcher = new QDBusPendingCallWatcher(call, this);
+    connect(watcher, &QDBusPendingCallWatcher::finished, this,
+            [this, profileName](QDBusPendingCallWatcher *w) {
+                w->deleteLater();
+                if (w->isError())
+                    emit errorOccurred(profileName, w->error().message());
+            });
 }
 
 void WireguardManagerBridge::refreshProfiles()
@@ -71,7 +86,7 @@ void WireguardManagerBridge::refreshProfiles()
 
 void WireguardManagerBridge::toggleProfile(const QString &name, bool targetState)
 {
-    m_proxy->ToggleProfile(name, targetState);
+    watchCall(m_proxy->ToggleProfile(name, targetState), name);
 }
 
 void WireguardManagerBridge::importProfile(const QUrl &fileUrl)
@@ -97,12 +112,12 @@ void WireguardManagerBridge::importProfile(const QUrl &fileUrl)
         return;
     }
 
-    m_proxy->ImportProfile(name, QString::fromUtf8(data));
+    watchCall(m_proxy->ImportProfile(name, QString::fromUtf8(data)), name);
 }
 
 void WireguardManagerBridge::deleteProfile(const QString &name)
 {
-    m_proxy->DeleteProfile(name);
+    watchCall(m_proxy->DeleteProfile(name), name);
 }
 
 void WireguardManagerBridge::renameProfile(const QString &oldName, const QString &newName)
@@ -117,7 +132,7 @@ void WireguardManagerBridge::renameProfile(const QString &oldName, const QString
     }
     if (oldName == newName)
         return;
-    m_proxy->RenameProfile(oldName, newName);
+    watchCall(m_proxy->RenameProfile(oldName, newName), oldName);
 }
 
 static QDBusMessage systemdMsg(const QString &method)
@@ -248,5 +263,5 @@ void WireguardManagerBridge::addProfile(const QVariantMap &config)
         return;
     }
 
-    m_proxy->ImportProfile(name, contents);
+    watchCall(m_proxy->ImportProfile(name, contents), name);
 }

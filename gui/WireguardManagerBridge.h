@@ -1,4 +1,5 @@
 #pragma once
+#include <QDBusPendingCall>
 #include <QObject>
 #include <QUrl>
 #include <QVariantList>
@@ -33,9 +34,13 @@ signals:
     void daemonUnavailable();
 
 private:
+    // Reports a failed D-Bus call to the UI instead of letting it fail silently
+    void watchCall(const QDBusPendingCall &call, const QString &profileName);
+
     IoGithubTracigesWireguardManagerInterface *m_proxy;
     int m_startupRetries = 0;
     bool m_daemonUnavailable = false;
     static constexpr int MaxStartupRetries = 5;
     static constexpr int StartupRetryDelayMs = 2000;
+    static constexpr int PolkitCallTimeoutMs = 120000;
 };

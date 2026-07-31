@@ -16,6 +16,25 @@
 
 static const QRegularExpression s_nameRegex(ProfileNamePattern);
 
+static const QString s_configDir = QStringLiteral("/etc/wireguard");
+
+// wireguard-tools does not necessarily ship the directory, so create it on demand
+static bool ensureConfigDir(QString *error)
+{
+    QDir dir(s_configDir);
+    if (dir.exists())
+        return true;
+
+    if (!QDir::root().mkpath(s_configDir)) {
+        *error = QStringLiteral("Could not create %1").arg(s_configDir);
+        return false;
+    }
+    QFile::setPermissions(s_configDir,
+                          QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner);
+    qInfo() << "Created configuration directory" << s_configDir;
+    return true;
+}
+
 WireguardManager::WireguardManager(QObject *parent)
     : QObject(parent)
 {
@@ -24,7 +43,11 @@ WireguardManager::WireguardManager(QObject *parent)
 ProfileList WireguardManager::ListProfiles()
 {
     ProfileList profiles;
-    QDir dir(QStringLiteral("/etc/wireguard"));
+    QDir dir(s_configDir);
+    if (!dir.exists()) {
+        qWarning() << "Configuration directory" << s_configDir << "does not exist";
+        return profiles;
+    }
     const QStringList configs = dir.entryList({QStringLiteral("*.conf")}, QDir::Files);
 
     for (const QString &conf : configs) {
@@ -149,8 +172,16 @@ void WireguardManager::ImportProfile(const QString &name, const QString &content
             return;
         }
 
+        QString dirError;
+        if (!ensureConfigDir(&dirError)) {
+            qWarning() << "Import failed:" << dirError;
+            conn.send(msg.createErrorReply(QDBusError::Failed, dirError));
+            return;
+        }
+
         QSaveFile file(destPath);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            qWarning() << "Import failed - could not create" << destPath << ":" << file.errorString();
             conn.send(msg.createErrorReply(
                 QDBusError::Failed,
                 QStringLiteral("Could not create file: %1").arg(file.errorString())));
@@ -161,6 +192,7 @@ void WireguardManager::ImportProfile(const QString &name, const QString &content
         file.write(contents.toUtf8());
 
         if (!file.commit()) {
+            qWarning() << "Import failed - could not save" << destPath << ":" << file.errorString();
             conn.send(msg.createErrorReply(
                 QDBusError::Failed,
                 QStringLiteral("Could not save file: %1").arg(file.errorString())));

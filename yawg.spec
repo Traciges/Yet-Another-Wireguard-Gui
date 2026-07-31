@@ -1,5 +1,5 @@
 Name:           yet-another-wireguard-gui
-Version:        0.1.0
+Version:        1.0.2
 Release:        1%{?dist}
 Summary:        WireGuard VPN Manager for KDE Plasma
 License:        GPL-3.0-only

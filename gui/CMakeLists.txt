@@ -29,6 +29,11 @@ qt_add_qml_module(yawg-gui
         qml/SettingsDialog.qml
 )
 
+# Skip AOT codegen: it uses Qt private API and pins us to one Qt minor.
+set_target_properties(yawg-gui PROPERTIES
+    QT_QMLCACHEGEN_ARGUMENTS "--only-bytecode"
+)
+
 qt_add_resources(yawg-gui "appResources"
     PREFIX "/"
     BASE "${CMAKE_CURRENT_SOURCE_DIR}/resources"
@@ -55,8 +60,9 @@ target_link_libraries(yawg-gui
     KF6::Kirigami
 )
 
-install(TARGETS yawg-gui DESTINATION /usr/local/bin)
-install(FILES yawg-gui.desktop DESTINATION /usr/share/applications/)
+install(TARGETS yawg-gui DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES yawg-gui.desktop
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(FILES resources/app-icon.png
-    DESTINATION /usr/share/icons/hicolor/256x256/apps/
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps
     RENAME yawg-gui.png)

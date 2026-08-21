@@ -5,7 +5,7 @@ Requires=dbus.service
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/yawg-daemon
+ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/yawg-daemon
 Restart=on-failure
 RestartSec=3
 

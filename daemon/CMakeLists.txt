@@ -28,12 +28,18 @@ target_link_libraries(yawg-daemon
     PolkitQt6-1::Core
 )
 
-install(TARGETS yawg-daemon DESTINATION /usr/local/bin)
+configure_file(yawg-daemon.service.in yawg-daemon.service @ONLY)
+
+install(TARGETS yawg-daemon DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# <prefix>/share, not /etc -- /etc is for admin overrides of these files.
 install(FILES io.github.traciges.WireguardManager.conf
-    DESTINATION /etc/dbus-1/system.d/)
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/system.d)
 install(FILES io.github.traciges.wireguard.rules
-    DESTINATION /usr/share/polkit-1/rules.d/)
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/polkit-1/rules.d)
 install(FILES io.github.traciges.wireguard.policy
-    DESTINATION /usr/share/polkit-1/actions/)
-install(FILES yawg-daemon.service
-    DESTINATION /etc/systemd/system/)
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/polkit-1/actions)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/yawg-daemon.service
+    DESTINATION ${SYSTEMD_UNIT_DIR})
+install(FILES ${CMAKE_SOURCE_DIR}/packaging/50-yawg-daemon.preset
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/systemd/system-preset)

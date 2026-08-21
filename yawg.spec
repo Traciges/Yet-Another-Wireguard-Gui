@@ -1,5 +1,5 @@
 Name:           yet-another-wireguard-gui
-Version:        1.0.2
+Version:        1.0.3
 Release:        1%{?dist}
 Summary:        WireGuard VPN Manager for KDE Plasma
 License:        GPL-3.0-only
@@ -79,7 +79,7 @@ fi
 %{_presetdir}/50-yawg-daemon.preset
 
 %changelog
-* Fri Aug 21 2026 Guido Philipp <guidophilipp2002@gmail.com> - 1.0.2-1
+* Fri Aug 21 2026 Guido Philipp - 1.0.3-1
 - Build QML with --only-bytecode so the binary no longer depends on
   Qt private API, which pinned it to a single Qt minor release
 - Install into %%{_bindir} and %%{_unitdir} instead of /usr/local and

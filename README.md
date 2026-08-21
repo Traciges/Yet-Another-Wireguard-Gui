@@ -95,7 +95,7 @@ Any Linux distribution with Qt6, KF6 Kirigami, and polkit should work. WireGuard
 Download the RPM from the [GitHub Releases](https://github.com/Traciges/Yet-Another-Wireguard-Gui/releases) page:
 
 ```bash
-sudo dnf install ./yet-another-wireguard-gui-1.0.2-1.x86_64.rpm
+sudo dnf install ./yet-another-wireguard-gui-1.0.3-1.x86_64.rpm
 ```
 
 The daemon is enabled and started automatically after installation.
